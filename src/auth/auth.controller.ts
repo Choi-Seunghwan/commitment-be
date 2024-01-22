@@ -1,6 +1,8 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Controller, HttpCode, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UserInfo } from 'os';
+import { UserInfo } from 'src/user/user';
+import { AuthUser } from 'src/security/auth-user.decorator';
+import { User } from 'src/user/user.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -8,7 +10,13 @@ export class AuthController {
 
   @Post('/sigh-up-guest')
   @HttpCode(201)
-  async sighUpGuest(@Body() body): Promise<{ user: UserInfo; token: string }> {
+  async sighUpGuest(): Promise<{ user: UserInfo; token: string }> {
     const { userInfo, token } = await this.authService.signUpGuest();
+    return { user: userInfo, token };
+  }
+
+  @Post('/token')
+  async validToken(@AuthUser() user: User) {
+    return user || false;
   }
 }

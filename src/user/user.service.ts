@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from './user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { UserInfo } from './user';
 
 @Injectable()
 export class UserService {
@@ -26,5 +27,20 @@ export class UserService {
     const guestUser: User = this.userRepo.create({ nickname, isGuest: true });
     const savedGuestUser = await this.userRepo.save(guestUser);
     return savedGuestUser;
+  }
+
+  createUserInfo(user: User): UserInfo {
+    const { id, nickname, email } = user;
+    const userInfo: UserInfo = { id, nickname, email };
+    return userInfo;
+  }
+
+  async getUser(id: string): Promise<User> {
+    const user: User = await this.userRepo.findOne({
+      where: { id },
+    });
+
+    if (!user) throw new NotFoundException('user not found');
+    return user;
   }
 }

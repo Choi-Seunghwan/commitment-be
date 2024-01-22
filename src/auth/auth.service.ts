@@ -11,13 +11,17 @@ export class AuthService {
 
   async signUpGuest() {
     const createdGuestUser = await this.usersService.createGuestUser();
+    const userInfo = this.usersService.createUserInfo(createdGuestUser);
 
     const payload = {
       username: createdGuestUser.nickname,
+      isGuest: true,
       sub: createdGuestUser.id,
     };
 
     const token = await this.jwtService.signAsync(payload);
-    return { token };
+    return { userInfo, token };
   }
+
+  async validateUser(userId: string) {}
 }
