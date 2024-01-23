@@ -4,6 +4,8 @@ import { Commitment } from 'src/commitment/commitment.entity';
 import { User } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
 import { CommitmentActivity } from './commitment-activity.entity';
+import { UserCommitmentInfo } from 'src/commitment/commitment';
+import { userCommitmentInfoMapper } from 'src/commitment/commitment.mapper';
 
 @Injectable()
 export class CommitmentActivityService {
@@ -16,7 +18,7 @@ export class CommitmentActivityService {
     private commitmentActivityRepo: Repository<CommitmentActivity>,
   ) {}
 
-  async getUserCommitments(user: User, isActive = true) {
+  async getUserCommitments(user: User, isActive = true): Promise<UserCommitmentInfo[]> {
     if (!user) throw new BadRequestException('user Badrequest');
 
     const commitmentActivity = await this.commitmentActivityRepo.find({
@@ -27,8 +29,8 @@ export class CommitmentActivityService {
       relations: ['commitment'],
     });
 
-    const commitments = commitmentActivity.map((item) => item.commitment);
-    return commitments;
+    const userCommitmentInfos: UserCommitmentInfo[] = commitmentActivity.map((item) => userCommitmentInfoMapper(item));
+    return userCommitmentInfos;
   }
 
   async joinCommitment(commitment: Commitment, user: User);
