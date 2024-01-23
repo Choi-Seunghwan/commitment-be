@@ -23,5 +23,8 @@ export class AuthService {
     return { userInfo, token };
   }
 
-  async validateUser(userId: string) {}
+  async validateUser(userId: string) {
+    const user = await this.usersService.getUser(userId);
+    return user;
+  }
 }

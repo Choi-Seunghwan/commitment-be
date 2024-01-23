@@ -1,8 +1,9 @@
-import { Controller, HttpCode, Post } from '@nestjs/common';
+import { Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserInfo } from 'src/user/user';
 import { AuthUser } from 'src/security/auth-user.decorator';
 import { User } from 'src/user/user.entity';
+import { JwtAuthGuard } from 'src/security/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -16,6 +17,7 @@ export class AuthController {
   }
 
   @Post('/token')
+  @UseGuards(JwtAuthGuard)
   async validToken(@AuthUser() user: User) {
     return user || false;
   }
