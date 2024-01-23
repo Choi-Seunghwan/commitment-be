@@ -11,12 +11,12 @@ import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    DatabaseModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: [`.env.${process.env.NODE_ENV}`],
     }),
     UserModule,
-    DatabaseModule,
     CommitmentModule,
     CommentModule,
     CommitmentActivityModule,

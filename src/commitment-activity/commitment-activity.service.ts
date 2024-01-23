@@ -12,8 +12,6 @@ export class CommitmentActivityService {
   constructor(
     @InjectRepository(Commitment)
     private commitmentRepo: Repository<Commitment>,
-    @InjectRepository(User)
-    private userRepo: Repository<User>,
     @InjectRepository(CommitmentActivity)
     private commitmentActivityRepo: Repository<CommitmentActivity>,
   ) {}

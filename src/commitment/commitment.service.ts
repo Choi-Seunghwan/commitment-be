@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Commitment } from './commitment.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/user/user.entity';
-import { findCommitmentMapper } from './commitment.mapper';
 import { CommitmentActivityService } from 'src/commitment-activity/commitment-activity.service';
 
 @Injectable()
@@ -11,8 +10,6 @@ export class CommitmentService {
   constructor(
     @InjectRepository(Commitment)
     private commitmentRepo: Repository<Commitment>,
-    @InjectRepository(User)
-    private userRepo: Repository<User>,
     private commitmentActivityService: CommitmentActivityService,
   ) {}
 
@@ -38,9 +35,8 @@ export class CommitmentService {
   async getCommitmentList() {
     try {
       const commitments: Commitment[] = await this.commitmentRepo.find();
-      const result = commitments.map(findCommitmentMapper);
 
-      return result;
+      return commitments;
     } catch (e) {
       throw e;
     }
