@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Commitment } from './commitment.entity';
 import { Repository } from 'typeorm';
@@ -17,24 +13,17 @@ export class CommitmentService {
     private userRepo: Repository<User>,
   ) {}
 
-  async createCommitment(
-    title: string,
-    description: string,
-    userId: string,
-  ): Promise<boolean> {
+  async createCommitment({ user, title }: { user: User; title: string }): Promise<Commitment> {
     try {
-      const user: User = await this.userRepo.findOne({ where: { id: userId } });
-
-      if (!user) throw new BadRequestException('user not founded');
+      if (!user?.id) throw new BadRequestException('user not founded');
 
       const commitment: Commitment = await this.commitmentRepo.create({
         title,
-        description,
         creator: user,
       });
       await this.commitmentRepo.save(commitment);
 
-      return true;
+      return commitment;
     } catch (e) {
       throw e;
     }
