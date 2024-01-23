@@ -1,16 +1,19 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Commitment } from './commitment.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/user/user.entity';
 import { findCommitmentMapper } from './commitment.mapper';
+import { CommitmentActivityService } from 'src/commitment-activity/commitment-activity.service';
 
 @Injectable()
 export class CommitmentService {
   constructor(
     @InjectRepository(Commitment)
     private commitmentRepo: Repository<Commitment>,
+    @InjectRepository(User)
     private userRepo: Repository<User>,
+    private commitmentActivityService: CommitmentActivityService,
   ) {}
 
   async createCommitment({ user, title }: { user: User; title: string }): Promise<Commitment> {
@@ -21,7 +24,10 @@ export class CommitmentService {
         title,
         creator: user,
       });
+
       await this.commitmentRepo.save(commitment);
+
+      this.commitmentActivityService.joinCommitment(commitment, user);
 
       return commitment;
     } catch (e) {

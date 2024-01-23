@@ -12,7 +12,10 @@ export class CommitmentActivityController {
   @Get('/')
   @UseGuards(JwtAuthGuard)
   async getUserCommitments(@AuthUser() user: User) {
-    const result = await this.commitmentActivityService.getUserCommitments(user);
+    const activatedCommitments = await this.commitmentActivityService.getUserCommitments(user, true);
+    const inActivatedCommitments = await this.commitmentActivityService.getUserCommitments(user, false);
+
+    return { activatedCommitments, inActivatedCommitments };
   }
 
   @Post('/:commitmentId')
@@ -20,8 +23,15 @@ export class CommitmentActivityController {
   async joinCommitment(@Param() param: CommitmentParam, @AuthUser() user: User) {
     const { commitmentId } = param;
 
-    const result = await this.commitmentActivityService.joinCommitment(commitmentId, user);
+    const joinedCommitment = await this.commitmentActivityService.joinCommitment(commitmentId, user);
 
-    return result;
+    return { commitment: joinedCommitment };
+  }
+
+  @Post('/:commitmentId')
+  @UseGuards(JwtAuthGuard)
+  async completeCommitment(@Param('commitmentId') commitmentId: string, @AuthUser() user: User) {
+    const completedCommitment = await this.commitmentActivityService.completeCommitment(commitmentId, user);
+    return { commitment: completedCommitment };
   }
 }
