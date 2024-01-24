@@ -10,7 +10,7 @@ import { userInfoMapper } from 'src/user/user.mapper';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('/sigh-up-guest')
+  @Post('/sign-up-guest')
   @HttpCode(201)
   async sighUpGuest(): Promise<{ user: UserInfo; token: string }> {
     const { userInfo, token } = await this.authService.signUpGuest();
