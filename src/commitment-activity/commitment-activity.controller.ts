@@ -18,20 +18,29 @@ export class CommitmentActivityController {
     return { activatedCommitments, inActivatedCommitments };
   }
 
-  @Post('/:commitmentId')
+  @Post('/renew/:commitmentId')
+  @UseGuards(JwtAuthGuard)
+  async renewCommitment(@Param() param: CommitmentParam, @AuthUser() user: User) {
+    const { commitmentId } = param;
+    const renewCommitment = await this.commitmentActivityService.renewCommitment(commitmentId, user);
+
+    return { commitment: renewCommitment };
+  }
+
+  @Post('/join/:commitmentId')
   @UseGuards(JwtAuthGuard)
   async joinCommitment(@Param() param: CommitmentParam, @AuthUser() user: User) {
     const { commitmentId } = param;
-
     const joinedCommitment = await this.commitmentActivityService.joinCommitment(commitmentId, user);
 
     return { commitment: joinedCommitment };
   }
 
-  @Post('/:commitmentId')
+  @Post('/complete/:commitmentId')
   @UseGuards(JwtAuthGuard)
   async completeCommitment(@Param('commitmentId') commitmentId: string, @AuthUser() user: User) {
     const completedCommitment = await this.commitmentActivityService.completeCommitment(commitmentId, user);
+
     return { commitment: completedCommitment };
   }
 }

@@ -6,7 +6,7 @@ import { COMMITMENT_STATUS } from './commitment.constant';
 export const userCommitmentInfoMapper = (commitmentActivity: CommitmentActivity): UserCommitmentInfo => {
   const days = calcCommitmentDays(commitmentActivity.createDate);
   const commitment = commitmentActivity?.commitment;
-  const status = commitmentActivity?.endDate ? COMMITMENT_STATUS.COMPLETE : COMMITMENT_STATUS.PROGRESS;
+  const status = commitmentActivity?.completeDate ? COMMITMENT_STATUS.COMPLETE : COMMITMENT_STATUS.PROGRESS;
 
   const userCommitmentInfo: UserCommitmentInfo = {
     id: commitment?.id,

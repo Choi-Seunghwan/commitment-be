@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { CommitmentActivity } from './commitment-activity.entity';
 import { UserCommitmentInfo } from 'src/commitment/commitment';
 import { userCommitmentInfoMapper } from 'src/commitment/commitment.mapper';
+import { calcCommitmentActivityExpirationDate } from 'src/commitment/commitment.utils';
 
 @Injectable()
 export class CommitmentActivityService {
@@ -31,19 +32,44 @@ export class CommitmentActivityService {
     return userCommitmentInfos;
   }
 
+  async renewCommitment(commitmentId: string, user: User) {
+    if (!commitmentId || !user) throw new BadRequestException('commitmentId or user BadRequest');
+
+    const commitmentActivity = await this.commitmentActivityRepo.findOne({
+      where: {
+        commitment: { id: commitmentId },
+        user: user,
+        isActive: true,
+      },
+      relations: ['commitment'],
+    });
+
+    if (!commitmentActivity) throw new BadRequestException('commitmentActivity not found');
+
+    const renewalDate = new Date();
+
+    const expirationDate = calcCommitmentActivityExpirationDate(renewalDate, commitmentActivity?.commitment?.renewalPeriodDays);
+
+    commitmentActivity.renewalDate = renewalDate;
+    commitmentActivity.expirationDate = expirationDate;
+
+    await this.commitmentActivityRepo.save(commitmentActivity);
+
+    return commitmentActivity?.commitment;
+  }
+
   async joinCommitment(commitment: Commitment, user: User);
   async joinCommitment(commitmentId: string, user: User);
   async joinCommitment(commitmentOrId: string | Commitment, user: User): Promise<Commitment> {
     try {
       // todo: 이와 같이 argument 로 받는 것들, decorator로 validate 체크 하도록 할 수 있을 듯
-      if (!commitmentOrId || !user) throw new BadRequestException('commitmentId or user BadRequest');
+      if (!commitmentOrId || !user) throw new BadRequestException('commitmentOrId or user BadRequest');
 
       let commitment: Commitment;
 
       if (typeof commitmentOrId === 'string')
         commitment = await this.commitmentRepo.findOne({
           where: { id: commitmentOrId },
-          relations: ['commitment'],
         });
       else commitment = commitmentOrId;
 
@@ -73,10 +99,10 @@ export class CommitmentActivityService {
         relations: ['commitment'],
       });
 
-      if (!commitmentActivity) throw new BadRequestException('commitment not found');
+      if (!commitmentActivity) throw new BadRequestException('commitmentActivity not found');
 
       commitmentActivity.isActive = false;
-      commitmentActivity.endDate = new Date();
+      commitmentActivity.completeDate = new Date();
 
       await this.commitmentActivityRepo.save(commitmentActivity);
 

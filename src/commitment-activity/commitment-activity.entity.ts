@@ -13,8 +13,17 @@ export class CommitmentActivity {
   @Column({ default: true })
   isActive: boolean;
 
-  @Column({ nullable: true })
-  endDate: Date;
+  // 갱신 날짜
+  @Column({ type: 'timestamp', nullable: true })
+  renewalDate: Date;
+
+  // 만료 날짜
+  @Column({ type: 'timestamp', nullable: true })
+  expirationDate: Date;
+
+  // 완료 일자
+  @Column({ type: 'timestamp', nullable: true })
+  completeDate: Date;
 
   @ManyToOne(() => Commitment, (commitment) => commitment.commitmentActivity)
   @JoinColumn({ name: 'commitmentId' })

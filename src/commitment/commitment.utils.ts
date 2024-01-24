@@ -10,3 +10,12 @@ export const calcCommitmentDays = (startDate: Date): number => {
 
   return days;
 };
+
+export const calcCommitmentActivityExpirationDate = (renewalDate: Date, renewalPeriodDays: number): Date => {
+  const expirationDate = new Date(renewalDate);
+  expirationDate.setDate(renewalDate.getDate() + renewalPeriodDays);
+
+  expirationDate.setHours(23, 59, 59, 999);
+
+  return expirationDate;
+};
