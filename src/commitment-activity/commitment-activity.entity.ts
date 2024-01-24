@@ -14,11 +14,11 @@ export class CommitmentActivity {
   isActive: boolean;
 
   // 갱신 날짜
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp' })
   renewalDate: Date;
 
   // 만료 날짜
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp' })
   expirationDate: Date;
 
   // 완료 일자

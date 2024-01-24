@@ -10,7 +10,7 @@ export class Commitment {
   @Column()
   title: string;
 
-  @Column()
+  @Column({ nullable: true })
   description: string;
 
   @ManyToOne(() => User, (user) => user.commitment)
