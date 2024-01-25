@@ -4,12 +4,13 @@ import { UserInfo } from 'src/user/user';
 import { AuthUser } from 'src/security/auth-user.decorator';
 import { User } from 'src/user/user.entity';
 import { JwtAuthGuard } from 'src/security/jwt-auth.guard';
+import { userInfoMapper } from 'src/user/user.mapper';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('/sigh-up-guest')
+  @Post('/sign-up-guest')
   @HttpCode(201)
   async sighUpGuest(): Promise<{ user: UserInfo; token: string }> {
     const { userInfo, token } = await this.authService.signUpGuest();
@@ -19,6 +20,7 @@ export class AuthController {
   @Post('/token')
   @UseGuards(JwtAuthGuard)
   async validToken(@AuthUser() user: User) {
-    return user || false;
+    const userInfo: UserInfo = userInfoMapper(user);
+    return { user: userInfo };
   }
 }

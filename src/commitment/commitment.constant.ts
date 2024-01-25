@@ -1,0 +1,4 @@
+export const COMMITMENT_STATUS = {
+  PROGRESS: 'PROGRESS',
+  COMPLETE: 'COMPLETE',
+} as const;

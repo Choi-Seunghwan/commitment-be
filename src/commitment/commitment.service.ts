@@ -1,51 +1,44 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Commitment } from './commitment.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/user/user.entity';
-import { findCommitmentMapper } from './commitment.mapper';
+import { CommitmentActivityService } from 'src/commitment-activity/commitment-activity.service';
+import { CommitmentInfo } from './commitment';
 
 @Injectable()
 export class CommitmentService {
   constructor(
     @InjectRepository(Commitment)
     private commitmentRepo: Repository<Commitment>,
-    private userRepo: Repository<User>,
+    private commitmentActivityService: CommitmentActivityService,
   ) {}
 
-  async createCommitment(
-    title: string,
-    description: string,
-    userId: string,
-  ): Promise<boolean> {
+  async createCommitment({ user, title }: { user: User; title: string }): Promise<CommitmentInfo> {
     try {
-      const user: User = await this.userRepo.findOne({ where: { id: userId } });
-
-      if (!user) throw new BadRequestException('user not founded');
+      if (!user?.id) throw new BadRequestException('user not founded');
 
       const commitment: Commitment = await this.commitmentRepo.create({
         title,
-        description,
+        renewalPeriodDays: 7,
         creator: user,
       });
+
       await this.commitmentRepo.save(commitment);
 
-      return true;
+      const commitmentInfo = this.commitmentActivityService.joinCommitment(commitment, user);
+
+      return commitmentInfo;
     } catch (e) {
       throw e;
     }
   }
 
-  async getCommitmentList() {
+  async getCommitmentList(user: User) {
     try {
-      const commitments: Commitment[] = await this.commitmentRepo.find();
-      const result = commitments.map(findCommitmentMapper);
+      const commitments: Commitment[] = await this.commitmentRepo.find({ where: { creator: user } });
 
-      return result;
+      return commitments;
     } catch (e) {
       throw e;
     }

@@ -1,14 +1,6 @@
 import { CommitmentActivity } from 'src/commitment-activity/commitment-activity.entity';
 import { User } from 'src/user/user.entity';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
 export class Commitment {
@@ -18,11 +10,15 @@ export class Commitment {
   @Column()
   title: string;
 
-  @Column()
+  @Column({ nullable: true })
   description: string;
 
-  @Column()
+  @ManyToOne(() => User, (user) => user.commitments)
+  @JoinColumn({ name: 'creatorId' })
   creator: User;
+
+  @Column({ nullable: false, enum: [7] })
+  renewalPeriodDays: number; // 갱신 주기 (일 단위)
 
   @UpdateDateColumn()
   updateDate: Date;
@@ -30,10 +26,6 @@ export class Commitment {
   @CreateDateColumn()
   createDate: Date;
 
-  @OneToMany(
-    () => CommitmentActivity,
-    (commitmentActivity) => commitmentActivity.commitment,
-  )
-  @JoinColumn({ name: 'commitmentActivity' })
-  commitmentActivity: CommitmentActivity;
+  @OneToMany(() => CommitmentActivity, (commitmentActivity) => commitmentActivity.commitment)
+  commitmentActivities: CommitmentActivity[];
 }

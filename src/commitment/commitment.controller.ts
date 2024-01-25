@@ -1,33 +1,39 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommitmentService } from './commitment.service';
 import { CreateCommitmentDto } from './dto/create-commitment.dto';
 import { Commitment } from './commitment.entity';
 import { CommitmentParam } from './dto/commitment.param';
+import { JwtAuthGuard } from 'src/security/jwt-auth.guard';
+import { AuthUser } from 'src/security/auth-user.decorator';
+import { User } from 'src/user/user.entity';
+import { CommitmentInfo } from './commitment';
 
 @Controller('commitment')
 export class CommitmentController {
   constructor(private readonly commitmentService: CommitmentService) {}
 
   @Post('/')
-  async createCommitment(@Body() dto: CreateCommitmentDto): Promise<any> {
+  @UseGuards(JwtAuthGuard)
+  async createCommitment(@Body() dto: CreateCommitmentDto, @AuthUser() user: User): Promise<any> {
     try {
-      const { title, description, userId } = dto;
-      const result: any = await this.createCommitment({
+      const { title } = dto;
+
+      const createdCommitment: CommitmentInfo = await this.commitmentService.createCommitment({
+        user,
         title,
-        description,
-        userId,
       });
 
-      return result;
+      return { commitment: createdCommitment };
     } catch (e) {
       throw e;
     }
   }
 
   @Get('/')
-  async getCommitments(): Promise<any> {
+  @UseGuards(JwtAuthGuard)
+  async getCommitments(@AuthUser() user: User): Promise<any> {
     try {
-      const result = await this.commitmentService.getCommitmentList();
+      const result = await this.commitmentService.getCommitmentList(user);
       return result;
     } catch (e) {
       throw e;

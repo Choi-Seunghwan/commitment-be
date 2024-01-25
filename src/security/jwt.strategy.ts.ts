@@ -1,11 +1,10 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from 'src/auth/auth.service';
 import { UserService } from 'src/user/user.service';
 import { JwtPayload } from '../auth/auth';
-import { UserInfo } from 'src/user/user';
 import { User } from 'src/user/user.entity';
 import { JWT_PRIVATE_KEY } from 'src/constants';
 
@@ -20,14 +19,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(req, payload: JwtPayload): Promise<{ user: UserInfo; token: string } | boolean> {
-    const rawToken = req.headers['authorization'].split(' ')[1];
+  async validate(req, payload: JwtPayload): Promise<User> {
+    // const rawToken = req.headers['authorization'].split(' ')[1];
     const { id } = payload;
     const user: User = await this.authService.validateUser(id);
 
-    if (!user) return false;
+    if (!user) throw new UnauthorizedException('user not found');
 
-    const userInfo = await this.userService.createUserInfo(user);
-    return { user: userInfo, token: rawToken };
+    return user;
   }
 }

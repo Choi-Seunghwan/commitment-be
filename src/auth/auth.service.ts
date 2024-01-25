@@ -4,14 +4,11 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    @Inject(forwardRef(() => UserService)) private usersService: UserService,
-    private jwtService: JwtService,
-  ) {}
+  constructor(@Inject(forwardRef(() => UserService)) private userService: UserService, private jwtService: JwtService) {}
 
   async signUpGuest() {
-    const createdGuestUser = await this.usersService.createGuestUser();
-    const userInfo = this.usersService.createUserInfo(createdGuestUser);
+    const createdGuestUser = await this.userService.createGuestUser();
+    const userInfo = this.userService.createUserInfo(createdGuestUser);
 
     const payload = {
       username: createdGuestUser.nickname,
@@ -24,7 +21,7 @@ export class AuthService {
   }
 
   async validateUser(userId: string) {
-    const user = await this.usersService.getUser(userId);
+    const user = await this.userService.getUser(userId);
     return user;
   }
 }
