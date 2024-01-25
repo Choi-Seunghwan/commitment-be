@@ -47,7 +47,8 @@ export class CommitmentActivityController {
 
   @Post('/complete/:commitmentId')
   @UseGuards(JwtAuthGuard)
-  async completeCommitment(@Param('commitmentId') commitmentId: string, @AuthUser() user: User) {
+  async completeCommitment(@Param() param: CommitmentParam, @AuthUser() user: User) {
+    const { commitmentId } = param;
     const completedCommitment = await this.commitmentActivityService.completeCommitment(commitmentId, user);
 
     return { commitment: completedCommitment };

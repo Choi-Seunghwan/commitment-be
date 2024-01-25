@@ -52,22 +52,19 @@ export class CommitmentActivityService {
     return commitmentInfo;
   }
 
-  async renewCommitment(commitmentId: string, user: User) {
-    if (!commitmentId || !user) throw new BadRequestException('commitmentId or user BadRequest');
-
+  async renewCommitment(commitmentId: string, user: User): Promise<CommitmentInfo> {
     const commitmentActivity = await this.commitmentActivityRepo.findOne({
       where: {
         commitment: { id: commitmentId },
-        user: user,
-        isActive: true,
+        user: { id: user.id },
       },
       relations: ['commitment'],
     });
 
     if (!commitmentActivity) throw new BadRequestException('commitmentActivity not found');
+    if (!commitmentActivity?.isActive) throw new BadRequestException('commitmentActivity is not activated');
 
     const renewalDate = new Date();
-
     const expirationDate = calcCommitmentActivityExpirationDate(renewalDate, commitmentActivity?.commitment?.renewalPeriodDays);
 
     commitmentActivity.renewalDate = renewalDate;
@@ -75,7 +72,13 @@ export class CommitmentActivityService {
 
     await this.commitmentActivityRepo.save(commitmentActivity);
 
-    return commitmentActivity?.commitment;
+    const commitmentInfo = new CommitmentInfoBuilder()
+      .setUserData(user)
+      .setCommitmentActivityData(commitmentActivity)
+      .setCommitmentData(commitmentActivity.commitment)
+      .build();
+
+    return commitmentInfo;
   }
 
   async joinCommitment(commitment: Commitment, user: User);
@@ -120,25 +123,34 @@ export class CommitmentActivityService {
     }
   }
 
-  async completeCommitment(commitmentId: string, user: User): Promise<Commitment> {
+  async completeCommitment(commitmentId: string, user: User): Promise<CommitmentInfo> {
     try {
       const commitmentActivity = await this.commitmentActivityRepo.findOne({
         where: {
           commitment: { id: commitmentId },
-          user: user,
-          isActive: true,
+          user: { id: user.id },
         },
         relations: ['commitment'],
       });
+      const now = new Date();
 
-      if (!commitmentActivity) throw new BadRequestException('commitmentActivity not found');
+      if (!commitmentActivity) throw new NotFoundException('commitmentActivity not found');
+      if (!commitmentActivity?.isActive || commitmentActivity.completeDate)
+        throw new BadRequestException('commitmentActivity is already completed');
+      if (commitmentActivity.expirationDate < now) throw new BadRequestException('commitment already expired');
 
       commitmentActivity.isActive = false;
-      commitmentActivity.completeDate = new Date();
+      commitmentActivity.completeDate = now;
 
       await this.commitmentActivityRepo.save(commitmentActivity);
 
-      return commitmentActivity?.commitment;
+      const commitmentInfo = new CommitmentInfoBuilder()
+        .setUserData(user)
+        .setCommitmentActivityData(commitmentActivity)
+        .setCommitmentData(commitmentActivity.commitment)
+        .build();
+
+      return commitmentInfo;
     } catch (e) {
       throw e;
     }
