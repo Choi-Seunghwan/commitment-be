@@ -18,9 +18,7 @@ export class CommitmentActivityService {
   ) {}
 
   async getUserCommitments(user: User, isActive = true): Promise<CommitmentInfo[]> {
-    if (!user) throw new BadRequestException('user Badrequest');
-
-    const commitmentActivity = await this.commitmentActivityRepo.find({
+    const commitmentActivities = await this.commitmentActivityRepo.find({
       where: {
         user: { id: user.id },
         isActive,
@@ -28,9 +26,29 @@ export class CommitmentActivityService {
       relations: ['user', 'commitment'],
     });
 
-    const commitmentInfo: CommitmentInfo[] = commitmentActivity.map((ca) =>
+    const commitmentInfo: CommitmentInfo[] = commitmentActivities.map((ca) =>
       new CommitmentInfoBuilder().setUserData(user).setCommitmentActivityData(ca).setCommitmentData(ca.commitment).build(),
     );
+    return commitmentInfo;
+  }
+
+  async getUserCommitment(user: User, commitmentId: string): Promise<CommitmentInfo> {
+    const commitmentActivity = await this.commitmentActivityRepo.findOne({
+      where: {
+        user: { id: user.id },
+        commitment: { id: commitmentId },
+      },
+      relations: ['user', 'commitment'],
+    });
+
+    if (!commitmentActivity) throw new NotFoundException('commitment not founded');
+
+    const commitmentInfo = new CommitmentInfoBuilder()
+      .setUserData(user)
+      .setCommitmentActivityData(commitmentActivity)
+      .setCommitmentData(commitmentActivity.commitment)
+      .build();
+
     return commitmentInfo;
   }
 

@@ -18,6 +18,15 @@ export class CommitmentActivityController {
     return { progressCommitments, completedCommitments };
   }
 
+  @Get('/:commitmentId')
+  @UseGuards(JwtAuthGuard)
+  async getUserCommitment(@Param() param: CommitmentParam, @AuthUser() user: User) {
+    const { commitmentId } = param;
+    const commitment = await this.commitmentActivityService.getUserCommitment(user, commitmentId);
+
+    return { commitment };
+  }
+
   @Post('/renew/:commitmentId')
   @UseGuards(JwtAuthGuard)
   async renewCommitment(@Param() param: CommitmentParam, @AuthUser() user: User) {
