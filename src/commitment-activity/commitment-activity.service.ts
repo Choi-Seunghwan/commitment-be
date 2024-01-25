@@ -5,9 +5,8 @@ import { User } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
 import { CommitmentActivity } from './commitment-activity.entity';
 import { CommitmentInfo } from 'src/commitment/commitment';
-import { commitmentActivityInfoMapper, commitmentInfoMapper } from 'src/commitment/commitment.mapper';
 import { calcCommitmentActivityExpirationDate } from 'src/commitment/commitment.utils';
-import { userInfoMapper } from 'src/user/user.mapper';
+import { CommitmentInfoBuilder } from 'src/commitment/commitment-info.builder';
 
 @Injectable()
 export class CommitmentActivityService {
@@ -23,20 +22,15 @@ export class CommitmentActivityService {
 
     const commitmentActivity = await this.commitmentActivityRepo.find({
       where: {
-        user,
+        user: { id: user.id },
+        isActive,
       },
       relations: ['user', 'commitment'],
     });
 
-    const commitmentInfo: CommitmentInfo[] = commitmentActivity.map((ca) => {
-      const commitment = ca.commitment;
-      const userInfo = userInfoMapper(user);
-      const commitmentInfo = commitmentInfoMapper(commitment, userInfo);
-      const commitmentActivityInfo = commitmentActivityInfoMapper(ca);
-      commitmentInfo.activity = commitmentActivityInfo;
-
-      return commitmentInfo;
-    });
+    const commitmentInfo: CommitmentInfo[] = commitmentActivity.map((ca) =>
+      new CommitmentInfoBuilder().setUserData(user).setCommitmentActivityData(ca).setCommitmentData(ca.commitment).build(),
+    );
     return commitmentInfo;
   }
 
@@ -93,13 +87,14 @@ export class CommitmentActivityService {
         expirationDate,
       });
 
-      const createdCommitmentActivity = await this.commitmentActivityRepo.save(commitmentActivity);
+      await this.commitmentActivityRepo.save(commitmentActivity);
 
       // todo: 이 로직 한번에 하도록 wrapping 해야 할 듯?
-      const userInfo = userInfoMapper(user);
-      const commitmentInfo = commitmentInfoMapper(commitment, userInfo);
-      const commitmentActivityInfo = commitmentActivityInfoMapper(createdCommitmentActivity);
-      commitmentInfo.activity = commitmentActivityInfo;
+      const commitmentInfo = new CommitmentInfoBuilder()
+        .setUserData(user)
+        .setCommitmentActivityData(commitmentActivity)
+        .setCommitmentData(commitment)
+        .build();
 
       return commitmentInfo;
     } catch (e) {
