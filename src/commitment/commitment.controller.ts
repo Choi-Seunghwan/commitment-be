@@ -6,6 +6,7 @@ import { CommitmentParam } from './dto/commitment.param';
 import { JwtAuthGuard } from 'src/security/jwt-auth.guard';
 import { AuthUser } from 'src/security/auth-user.decorator';
 import { User } from 'src/user/user.entity';
+import { CommitmentInfo } from './commitment';
 
 @Controller('commitment')
 export class CommitmentController {
@@ -17,7 +18,7 @@ export class CommitmentController {
     try {
       const { title } = dto;
 
-      const createdCommitment: Commitment = await this.commitmentService.createCommitment({
+      const createdCommitment: CommitmentInfo = await this.commitmentService.createCommitment({
         user,
         title,
       });

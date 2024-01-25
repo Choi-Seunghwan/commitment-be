@@ -16,7 +16,7 @@ export class Commitment {
   @ManyToOne(() => User, (user) => user.commitment)
   creator: User;
 
-  @Column()
+  @Column({ nullable: false, enum: [7] })
   renewalPeriodDays: number; // 갱신 주기 (일 단위)
 
   @UpdateDateColumn()

@@ -1,4 +1,4 @@
-export const calcCommitmentDays = (startDate: Date): number => {
+export const calcCommitmentProcessDays = (startDate: Date): number => {
   startDate.setHours(0, 0, 0, 0);
 
   const now = new Date();

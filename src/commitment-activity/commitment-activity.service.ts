@@ -4,9 +4,10 @@ import { Commitment } from 'src/commitment/commitment.entity';
 import { User } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
 import { CommitmentActivity } from './commitment-activity.entity';
-import { UserCommitmentInfo } from 'src/commitment/commitment';
-import { userCommitmentInfoMapper } from 'src/commitment/commitment.mapper';
+import { CommitmentInfo } from 'src/commitment/commitment';
+import { commitmentActivityInfoMapper, commitmentInfoMapper } from 'src/commitment/commitment.mapper';
 import { calcCommitmentActivityExpirationDate } from 'src/commitment/commitment.utils';
+import { userInfoMapper } from 'src/user/user.mapper';
 
 @Injectable()
 export class CommitmentActivityService {
@@ -17,7 +18,7 @@ export class CommitmentActivityService {
     private commitmentActivityRepo: Repository<CommitmentActivity>,
   ) {}
 
-  async getUserCommitments(user: User, isActive = true): Promise<UserCommitmentInfo[]> {
+  async getUserCommitments(user: User, isActive = true): Promise<CommitmentInfo[]> {
     if (!user) throw new BadRequestException('user Badrequest');
 
     const commitmentActivity = await this.commitmentActivityRepo.find({
@@ -28,8 +29,16 @@ export class CommitmentActivityService {
       relations: ['commitment'],
     });
 
-    const userCommitmentInfos: UserCommitmentInfo[] = commitmentActivity.map((item) => userCommitmentInfoMapper(item));
-    return userCommitmentInfos;
+    const commitmentInfo: CommitmentInfo[] = commitmentActivity.map((ca) => {
+      const commitment = ca.commitment;
+      const userInfo = userInfoMapper(user);
+      const commitmentInfo = commitmentInfoMapper(commitment, userInfo);
+      const commitmentActivityInfo = commitmentActivityInfoMapper(ca);
+      commitmentInfo.activity = commitmentActivityInfo;
+
+      return commitmentInfo;
+    });
+    return commitmentInfo;
   }
 
   async renewCommitment(commitmentId: string, user: User) {
@@ -60,7 +69,7 @@ export class CommitmentActivityService {
 
   async joinCommitment(commitment: Commitment, user: User);
   async joinCommitment(commitmentId: string, user: User);
-  async joinCommitment(commitmentOrId: string | Commitment, user: User): Promise<Commitment> {
+  async joinCommitment(commitmentOrId: string | Commitment, user: User): Promise<CommitmentInfo> {
     try {
       // todo: 이와 같이 argument 로 받는 것들, decorator로 validate 체크 하도록 할 수 있을 듯
       if (!commitmentOrId || !user) throw new BadRequestException('commitmentOrId or user BadRequest');
@@ -75,14 +84,25 @@ export class CommitmentActivityService {
 
       if (!user || !commitment) throw new NotFoundException('user or commitment not found');
 
+      const renewalDate = new Date();
+      const expirationDate = calcCommitmentActivityExpirationDate(renewalDate, commitment.renewalPeriodDays);
+
       const commitmentActivity = this.commitmentActivityRepo.create({
         user,
         commitment,
+        renewalDate,
+        expirationDate,
       });
 
       const createdCommitmentActivity = await this.commitmentActivityRepo.save(commitmentActivity);
 
-      return createdCommitmentActivity?.commitment;
+      // todo: 이 로직 한번에 하도록 wrapping 해야 할 듯?
+      const userInfo = userInfoMapper(user);
+      const commitmentInfo = commitmentInfoMapper(commitment, userInfo);
+      const commitmentActivityInfo = commitmentActivityInfoMapper(createdCommitmentActivity);
+      commitmentInfo.activity = commitmentActivityInfo;
+
+      return commitmentInfo;
     } catch (e) {
       throw e;
     }
