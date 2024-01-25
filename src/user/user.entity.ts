@@ -1,6 +1,6 @@
 import { CommitmentActivity } from 'src/commitment-activity/commitment-activity.entity';
 import { Commitment } from 'src/commitment/commitment.entity';
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity()
 export class User {
@@ -26,9 +26,8 @@ export class User {
   createDate: Date;
 
   @OneToMany(() => Commitment, (commitment) => commitment.creator)
-  commitment: Commitment;
+  commitments: Commitment[];
 
   @OneToMany(() => CommitmentActivity, (commitmentActivity) => commitmentActivity.user)
-  @JoinColumn({ name: 'commitmentActivity' })
-  commitmentActivity: CommitmentActivity;
+  commitmentActivities: CommitmentActivity[];
 }

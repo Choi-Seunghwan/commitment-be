@@ -25,11 +25,11 @@ export class CommitmentActivity {
   @Column({ type: 'timestamp', nullable: true })
   completeDate: Date;
 
-  @ManyToOne(() => Commitment, (commitment) => commitment.commitmentActivity)
+  @ManyToOne(() => Commitment, (commitment) => commitment.commitmentActivities)
   @JoinColumn({ name: 'commitmentId' })
   commitment: Commitment;
 
-  @ManyToOne(() => User, (user) => user.commitmentActivity)
+  @ManyToOne(() => User, (user) => user.commitmentActivities)
   @JoinColumn({ name: 'userId' })
   user: User;
 }

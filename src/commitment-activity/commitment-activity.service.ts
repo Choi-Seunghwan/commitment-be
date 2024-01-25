@@ -23,10 +23,9 @@ export class CommitmentActivityService {
 
     const commitmentActivity = await this.commitmentActivityRepo.find({
       where: {
-        user: user,
-        isActive,
+        user,
       },
-      relations: ['commitment'],
+      relations: ['user', 'commitment'],
     });
 
     const commitmentInfo: CommitmentInfo[] = commitmentActivity.map((ca) => {

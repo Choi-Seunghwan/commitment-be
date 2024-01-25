@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Commitment } from './commitment.entity';
 import { Repository } from 'typeorm';
@@ -34,9 +34,9 @@ export class CommitmentService {
     }
   }
 
-  async getCommitmentList() {
+  async getCommitmentList(user: User) {
     try {
-      const commitments: Commitment[] = await this.commitmentRepo.find();
+      const commitments: Commitment[] = await this.commitmentRepo.find({ where: { creator: user } });
 
       return commitments;
     } catch (e) {

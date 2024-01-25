@@ -3,6 +3,7 @@ import { CommitmentActivityInfo, CommitmentInfo } from './commitment';
 import { Commitment } from './commitment.entity';
 import { UserInfo } from 'src/user/user';
 import { calcCommitmentProcessDays } from './commitment.utils';
+import { COMMITMENT_STATUS } from './commitment.constant';
 
 export const commitmentInfoMapper = (commitment: Commitment, userInfo: UserInfo): CommitmentInfo => {
   const commitmentInfo: CommitmentInfo = {
@@ -18,6 +19,8 @@ export const commitmentInfoMapper = (commitment: Commitment, userInfo: UserInfo)
 };
 
 export const commitmentActivityInfoMapper = (commitmentActivity: CommitmentActivity): CommitmentActivityInfo => {
+  const status = commitmentActivity.isActive ? COMMITMENT_STATUS.PROGRESS : COMMITMENT_STATUS.COMPLETE;
+
   const commitmentActivityInfo: CommitmentActivityInfo = {
     commitmentActivityId: commitmentActivity.id,
     isActive: commitmentActivity.isActive,
@@ -25,6 +28,7 @@ export const commitmentActivityInfoMapper = (commitmentActivity: CommitmentActiv
     expirationDate: commitmentActivity.expirationDate,
     completeDate: commitmentActivity.completeDate || null,
     processDays: calcCommitmentProcessDays(commitmentActivity.createDate),
+    status,
   };
 
   return commitmentActivityInfo;

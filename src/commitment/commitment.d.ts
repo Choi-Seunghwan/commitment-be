@@ -1,6 +1,6 @@
 import { UserInfo } from 'src/user/user';
 
-export type CommitmentActivityStatus = 'PROCESS' | 'COMPLETE';
+export type CommitmentActivityStatus = 'PROGRESS' | 'COMPLETE';
 
 export interface CommitmentInfo {
   commitmentId: string;
@@ -19,4 +19,5 @@ export interface CommitmentActivityInfo {
   expirationDate: Date;
   completeDate?: Date;
   processDays: number;
+  status: CommitmentActivityStatus;
 }

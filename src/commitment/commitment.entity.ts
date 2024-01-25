@@ -13,7 +13,8 @@ export class Commitment {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToOne(() => User, (user) => user.commitment)
+  @ManyToOne(() => User, (user) => user.commitments)
+  @JoinColumn({ name: 'creatorId' })
   creator: User;
 
   @Column({ nullable: false, enum: [7] })
@@ -26,6 +27,5 @@ export class Commitment {
   createDate: Date;
 
   @OneToMany(() => CommitmentActivity, (commitmentActivity) => commitmentActivity.commitment)
-  @JoinColumn({ name: 'commitmentActivity' })
-  commitmentActivity: CommitmentActivity;
+  commitmentActivities: CommitmentActivity[];
 }

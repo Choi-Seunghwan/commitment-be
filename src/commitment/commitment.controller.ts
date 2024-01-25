@@ -30,9 +30,10 @@ export class CommitmentController {
   }
 
   @Get('/')
-  async getCommitments(): Promise<any> {
+  @UseGuards(JwtAuthGuard)
+  async getCommitments(@AuthUser() user: User): Promise<any> {
     try {
-      const result = await this.commitmentService.getCommitmentList();
+      const result = await this.commitmentService.getCommitmentList(user);
       return result;
     } catch (e) {
       throw e;
