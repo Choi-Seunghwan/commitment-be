@@ -58,6 +58,7 @@ export class CommitmentActivityService {
         commitment: { id: commitmentId },
         user: { id: user.id },
       },
+      order: { createDate: 'DESC' },
       relations: ['commitment'],
     });
 
@@ -81,9 +82,9 @@ export class CommitmentActivityService {
     return commitmentInfo;
   }
 
-  async joinCommitment(commitment: Commitment, user: User);
-  async joinCommitment(commitmentId: string, user: User);
-  async joinCommitment(commitmentOrId: string | Commitment, user: User): Promise<CommitmentInfo> {
+  async activeCommitment(commitment: Commitment, user: User): Promise<CommitmentInfo>;
+  async activeCommitment(commitmentId: string, user: User): Promise<CommitmentInfo>;
+  async activeCommitment(commitmentOrId: string | Commitment, user: User): Promise<CommitmentInfo> {
     try {
       // todo: 이와 같이 argument 로 받는 것들, decorator로 validate 체크 하도록 할 수 있을 듯
       if (!commitmentOrId || !user) throw new BadRequestException('commitmentOrId or user BadRequest');

@@ -1,6 +1,14 @@
 import { UserInfo } from 'src/user/user';
+import { COMMITMENT_STATUS, COMMITMENT_TYPE } from './commitment.constant';
 
-export type CommitmentActivityStatus = 'PROGRESS' | 'COMPLETE';
+export enum CommitmentActivityStatus {
+  [COMMITMENT_STATUS.PROGRESS] = COMMITMENT_STATUS.PROGRESS,
+  [COMMITMENT_STATUS.COMPLETE] = COMMITMENT_STATUS.COMPLETE,
+}
+export enum CommitmentType {
+  [COMMITMENT_TYPE.PERSONAL] = COMMITMENT_TYPE.PERSONAL,
+  [COMMITMENT_TYPE.PUBLIC] = COMMITMENT_TYPE.PUBLIC,
+}
 
 export interface CommitmentInfo {
   commitmentId: string;

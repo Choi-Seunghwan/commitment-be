@@ -16,11 +16,12 @@ export class CommitmentController {
   @UseGuards(JwtAuthGuard)
   async createCommitment(@Body() dto: CreateCommitmentDto, @AuthUser() user: User): Promise<any> {
     try {
-      const { title } = dto;
+      const { title, type } = dto;
 
       const createdCommitment: CommitmentInfo = await this.commitmentService.createCommitment({
         user,
         title,
+        type,
       });
 
       return { commitment: createdCommitment };
@@ -50,5 +51,22 @@ export class CommitmentController {
     } catch (e) {
       throw e;
     }
+  }
+
+  @Post('/join/:commitmentId')
+  @UseGuards(JwtAuthGuard)
+  async joinCommitment(@Param() param: CommitmentParam, @AuthUser() user: User) {
+    const { commitmentId } = param;
+    const commitmentInfo = await this.commitmentService.joinCommitment(commitmentId, user);
+
+    return { commitment: commitmentInfo };
+  }
+
+  @Post('/leave/:commitmentId')
+  @UseGuards(JwtAuthGuard)
+  async leaveCommitment(@Param() param: CommitmentParam, @AuthUser() user: User) {
+    const { commitmentId } = param;
+    const result = await this.commitmentService.leaveCommitment(commitmentId, user);
+    return result;
   }
 }
