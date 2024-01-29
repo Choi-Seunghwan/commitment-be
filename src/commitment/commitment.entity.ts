@@ -1,6 +1,9 @@
 import { CommitmentActivity } from 'src/commitment-activity/commitment-activity.entity';
 import { User } from 'src/user/user.entity';
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { UserCommitment } from './user-commitment.entity';
+import { CommitmentType } from './commitment.type';
+import { COMMITMENT_TYPE } from './commitment.constant';
 
 @Entity()
 export class Commitment {
@@ -28,4 +31,17 @@ export class Commitment {
 
   @OneToMany(() => CommitmentActivity, (commitmentActivity) => commitmentActivity.commitment)
   commitmentActivities: CommitmentActivity[];
+
+  @Column({
+    type: 'enum',
+    enum: CommitmentType,
+    default: COMMITMENT_TYPE.PERSONAL,
+  })
+  type: string;
+
+  @Column({ default: false })
+  isPublic: boolean;
+
+  @OneToMany(() => UserCommitment, (userCommitment) => userCommitment.commitment)
+  userCommitments: UserCommitment[];
 }
