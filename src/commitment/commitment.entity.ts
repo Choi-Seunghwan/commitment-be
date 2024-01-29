@@ -4,6 +4,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, Pri
 import { UserCommitment } from './user-commitment.entity';
 import { CommitmentType } from './commitment.type';
 import { COMMITMENT_TYPE } from './commitment.constant';
+import { CommitmentComment } from 'src/commitment-comment/commitment-comment.entity';
 
 @Entity()
 export class Commitment {
@@ -44,4 +45,7 @@ export class Commitment {
 
   @OneToMany(() => UserCommitment, (userCommitment) => userCommitment.commitment)
   userCommitments: UserCommitment[];
+
+  @OneToMany(() => CommitmentComment, (comment) => comment.commitment)
+  comments: CommitmentComment[];
 }
