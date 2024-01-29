@@ -11,7 +11,7 @@ export class UserCommitment {
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @OneToMany(() => Commitment, (commitment) => commitment.userCommitments)
+  @ManyToOne(() => Commitment, (commitment) => commitment.userCommitments)
   @JoinColumn({ name: 'commitmentId' })
   commitment: Commitment;
 

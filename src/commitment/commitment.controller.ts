@@ -6,7 +6,7 @@ import { CommitmentParam } from './dto/commitment.param';
 import { JwtAuthGuard } from 'src/security/jwt-auth.guard';
 import { AuthUser } from 'src/security/auth-user.decorator';
 import { User } from 'src/user/user.entity';
-import { CommitmentInfo } from './commitment';
+import { CommitmentInfo } from './commitment.type';
 
 @Controller('commitment')
 export class CommitmentController {

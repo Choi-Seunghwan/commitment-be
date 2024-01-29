@@ -2,7 +2,7 @@ import { CommitmentActivity } from 'src/commitment-activity/commitment-activity.
 import { User } from 'src/user/user.entity';
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { UserCommitment } from './user-commitment.entity';
-import { CommitmentType } from './commitment';
+import { CommitmentType } from './commitment.type';
 import { COMMITMENT_TYPE } from './commitment.constant';
 
 @Entity()

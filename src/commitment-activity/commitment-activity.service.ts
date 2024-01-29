@@ -2,9 +2,9 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Commitment } from 'src/commitment/commitment.entity';
 import { User } from 'src/user/user.entity';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { CommitmentActivity } from './commitment-activity.entity';
-import { CommitmentInfo } from 'src/commitment/commitment';
+import { CommitmentInfo } from 'src/commitment/commitment.type';
 import { calcCommitmentActivityExpirationDate } from 'src/commitment/commitment.utils';
 import { CommitmentInfoBuilder } from 'src/commitment/commitment-info.builder';
 
@@ -52,15 +52,27 @@ export class CommitmentActivityService {
     return commitmentInfo;
   }
 
-  async renewCommitment(commitmentId: string, user: User): Promise<CommitmentInfo> {
-    const commitmentActivity = await this.commitmentActivityRepo.findOne({
+  async getCommitmentActivity(commitmentId: string, userId: string, latest = true) {
+    const query: FindOneOptions<CommitmentActivity> = {
       where: {
+        user: { id: userId },
         commitment: { id: commitmentId },
-        user: { id: user.id },
       },
-      order: { createDate: 'DESC' },
       relations: ['commitment'],
-    });
+    };
+
+    if (latest)
+      query.order = {
+        createDate: 'DESC',
+      };
+
+    const commitmentActivity: CommitmentActivity = await this.commitmentActivityRepo.findOne(query);
+
+    return commitmentActivity;
+  }
+
+  async renewCommitment(commitmentId: string, user: User): Promise<CommitmentInfo> {
+    const commitmentActivity = await this.getCommitmentActivity(commitmentId, user.id, true);
 
     if (!commitmentActivity) throw new BadRequestException('commitmentActivity not found');
     if (!commitmentActivity?.isActive) throw new BadRequestException('commitmentActivity is not activated');
@@ -84,7 +96,7 @@ export class CommitmentActivityService {
 
   async activeCommitment(commitment: Commitment, user: User): Promise<CommitmentInfo>;
   async activeCommitment(commitmentId: string, user: User): Promise<CommitmentInfo>;
-  async activeCommitment(commitmentOrId: string | Commitment, user: User): Promise<CommitmentInfo> {
+  async activeCommitment(commitmentOrId: Commitment | string, user: User): Promise<CommitmentInfo> {
     try {
       // todo: 이와 같이 argument 로 받는 것들, decorator로 validate 체크 하도록 할 수 있을 듯
       if (!commitmentOrId || !user) throw new BadRequestException('commitmentOrId or user BadRequest');

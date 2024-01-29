@@ -2,12 +2,12 @@ import { UserInfo } from 'src/user/user';
 import { COMMITMENT_STATUS, COMMITMENT_TYPE } from './commitment.constant';
 
 export enum CommitmentActivityStatus {
-  [COMMITMENT_STATUS.PROGRESS] = COMMITMENT_STATUS.PROGRESS,
-  [COMMITMENT_STATUS.COMPLETE] = COMMITMENT_STATUS.COMPLETE,
+  PROGRESS = 'PROGRESS',
+  COMPLETE = 'COMPLETE',
 }
 export enum CommitmentType {
-  [COMMITMENT_TYPE.PERSONAL] = COMMITMENT_TYPE.PERSONAL,
-  [COMMITMENT_TYPE.PUBLIC] = COMMITMENT_TYPE.PUBLIC,
+  PERSONAL = 'PERSONAL',
+  PUBLIC = 'PUBLIC',
 }
 
 export interface CommitmentInfo {
@@ -27,5 +27,5 @@ export interface CommitmentActivityInfo {
   expirationDate: Date;
   completeDate?: Date;
   processDays: number;
-  status: CommitmentActivityStatus;
+  status: string;
 }

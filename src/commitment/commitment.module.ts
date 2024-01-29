@@ -6,9 +6,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from 'src/user/user.module';
 import { CommitmentActivityModule } from 'src/commitment-activity/commitment-activity.module';
 import { UserCommitment } from './user-commitment.entity';
+import { CommitmentActivity } from 'src/commitment-activity/commitment-activity.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Commitment, UserCommitment]), UserModule, forwardRef(() => CommitmentActivityModule)],
+  imports: [
+    TypeOrmModule.forFeature([Commitment, UserCommitment, CommitmentActivity]),
+    UserModule,
+    forwardRef(() => CommitmentActivityModule),
+  ],
   providers: [CommitmentService],
   controllers: [CommitmentController],
   exports: [CommitmentService],

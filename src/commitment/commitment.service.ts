@@ -4,7 +4,7 @@ import { Commitment } from './commitment.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/user/user.entity';
 import { CommitmentActivityService } from 'src/commitment-activity/commitment-activity.service';
-import { CommitmentInfo, CommitmentType } from './commitment';
+import { CommitmentInfo } from './commitment.type';
 import { COMMITMENT_TYPE } from './commitment.constant';
 import { UserCommitment } from './user-commitment.entity';
 import { CommitmentActivity } from 'src/commitment-activity/commitment-activity.entity';
@@ -33,7 +33,10 @@ export class CommitmentService {
       });
 
       await this.commitmentRepo.save(commitment);
-      const commitmentInfo = this.commitmentActivityService.activeCommitment(commitment, user);
+      let commitmentInfo: CommitmentInfo;
+
+      if (type === COMMITMENT_TYPE.PUBLIC) commitmentInfo = await this.joinCommitment(commitment, user);
+      else commitmentInfo = await this.commitmentActivityService.activeCommitment(commitment, user);
 
       return commitmentInfo;
     } catch (e) {
@@ -67,24 +70,34 @@ export class CommitmentService {
     }
   }
 
-  async joinCommitment(commitmentId: string, user: User): Promise<CommitmentInfo> {
-    const commitment = await this.commitmentRepo.findOne({ where: { id: commitmentId } });
+  async joinCommitment(commitmen: Commitment, user: User): Promise<CommitmentInfo>;
+  async joinCommitment(commitmentId: string, user: User): Promise<CommitmentInfo>;
+  async joinCommitment(commitmentOrId: Commitment | string, user: User): Promise<CommitmentInfo> {
+    try {
+      let commitment: Commitment;
 
-    if (!commitment) throw new BadRequestException('commitment not founded');
-    if (commitment.type !== COMMITMENT_TYPE.PUBLIC) throw new BadRequestException('commitment type not public');
+      if (typeof commitmentOrId === 'string') commitment = await this.commitmentRepo.findOne({ where: { id: commitmentOrId } });
+      else commitment = commitmentOrId;
 
-    const prevUserCommitment = await this.userCommitmentRepo.findOne({
-      where: { user: { id: user.id }, commitment: { id: commitmentId } },
-    });
+      if (!commitment) throw new BadRequestException('commitment not founded');
+      if (commitment.type !== COMMITMENT_TYPE.PUBLIC) throw new BadRequestException('commitment type not public');
 
-    if (prevUserCommitment) throw new BadRequestException('already userCommitment. user already joined');
+      const prevUserCommitment = await this.userCommitmentRepo.findOne({
+        where: { user: { id: user.id }, commitment: { id: commitment.id } },
+        relations: ['user', 'commitment'],
+      });
 
-    const createdUserCommitment = this.userCommitmentRepo.create({ user, commitment });
-    await this.userCommitmentRepo.save(createdUserCommitment);
+      if (prevUserCommitment) throw new BadRequestException('already userCommitment. user already joined');
 
-    const commitmentInfo = await this.commitmentActivityService.activeCommitment(commitment, user);
+      const createdUserCommitment = this.userCommitmentRepo.create({ user, commitment });
+      await this.userCommitmentRepo.save(createdUserCommitment);
 
-    return commitmentInfo;
+      const commitmentInfo = await this.commitmentActivityService.activeCommitment(commitment, user);
+
+      return commitmentInfo;
+    } catch (e) {
+      throw e;
+    }
   }
 
   async leaveCommitment(commitmentId: string, user: User) {
@@ -99,12 +112,7 @@ export class CommitmentService {
 
     if (!userCommitment) throw new BadRequestException('userCommitment not found, user not joined');
 
-    const commitmentActivity = await this.commitmentActivityRepo.findOne({
-      where: {
-        user: { id: user.id },
-        commitment: { id: commitment.id },
-      },
-    });
+    const commitmentActivity = await this.commitmentActivityService.getCommitmentActivity(commitment.id, user.id, true);
 
     if (commitmentActivity) {
       const now = new Date();
