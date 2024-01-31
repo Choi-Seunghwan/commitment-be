@@ -1,7 +1,7 @@
 import { CommitmentActivity } from 'src/commitment-activity/commitment-activity.entity';
 import { CommitmentActivityInfo, CommitmentInfo } from './commitment.type';
 import { Commitment } from './commitment.entity';
-import { UserInfo } from 'src/user/user';
+import { UserInfo } from 'src/user/user.type';
 import { calcCommitmentProcessDays } from './commitment.utils';
 import { COMMITMENT_STATUS } from './commitment.constant';
 

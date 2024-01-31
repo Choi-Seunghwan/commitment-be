@@ -1,4 +1,4 @@
-import { UserInfo } from 'src/user/user';
+import { UserInfo } from 'src/user/user.type';
 import { COMMITMENT_STATUS, COMMITMENT_TYPE } from './commitment.constant';
 
 export enum CommitmentActivityStatus {

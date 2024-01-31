@@ -1,14 +1,16 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
+import { UserMyInfo } from 'src/user/user.type';
+import { userMyInfoMapper } from 'src/user/user.mapper';
 
 @Injectable()
 export class AuthService {
   constructor(@Inject(forwardRef(() => UserService)) private userService: UserService, private jwtService: JwtService) {}
 
-  async signUpGuest() {
+  async signUpGuest(): Promise<{ userMyInfo: UserMyInfo; token: string }> {
     const createdGuestUser = await this.userService.createGuestUser();
-    const userInfo = this.userService.createUserInfo(createdGuestUser);
+    const userMyInfo = userMyInfoMapper(createdGuestUser);
 
     const payload = {
       username: createdGuestUser.nickname,
@@ -17,7 +19,7 @@ export class AuthService {
     };
 
     const token = await this.jwtService.signAsync(payload);
-    return { userInfo, token };
+    return { userMyInfo, token };
   }
 
   async validateUser(userId: string) {

@@ -1,4 +1,4 @@
-import { UserInfo } from 'src/user/user';
+import { UserInfo } from 'src/user/user.type';
 import { CommitmentActivityInfo, CommitmentInfo } from './commitment.type';
 import { userInfoMapper } from 'src/user/user.mapper';
 import { User } from 'src/user/user.entity';
