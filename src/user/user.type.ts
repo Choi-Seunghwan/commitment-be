@@ -1,7 +1,7 @@
 export interface UserInfo {
   id: string;
   nickname: string;
-  createdDate?: Date;
+  createDate?: Date;
 }
 
 export interface UserMyInfo {

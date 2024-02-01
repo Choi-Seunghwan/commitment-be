@@ -5,7 +5,7 @@ export const userInfoMapper = (user: User): UserInfo => {
   return {
     id: user?.id,
     nickname: user?.nickname,
-    createdDate: user?.createDate,
+    createDate: user?.createDate,
   };
 };
 
