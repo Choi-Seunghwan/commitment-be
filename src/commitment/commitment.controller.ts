@@ -7,31 +7,14 @@ import { JwtAuthGuard } from 'src/security/jwt-auth.guard';
 import { AuthUser } from 'src/security/auth-user.decorator';
 import { User } from 'src/user/user.entity';
 import { CommitmentInfo } from './commitment.type';
+import { OptionalJwtAuthGuard } from 'src/security/optional-jwt-auth.guard';
 
 @Controller('commitment')
 export class CommitmentController {
   constructor(private readonly commitmentService: CommitmentService) {}
 
-  @Post('/')
-  @UseGuards(JwtAuthGuard)
-  async createCommitment(@Body() dto: CreateCommitmentDto, @AuthUser() user: User): Promise<any> {
-    try {
-      const { title, type } = dto;
-
-      const createdCommitment: CommitmentInfo = await this.commitmentService.createCommitment({
-        user,
-        title,
-        type,
-      });
-
-      return { commitment: createdCommitment };
-    } catch (e) {
-      throw e;
-    }
-  }
-
   @Get('/')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   async getCommitments(@AuthUser() user: User): Promise<any> {
     try {
       const result = await this.commitmentService.getCommitmentList(user);
@@ -48,6 +31,24 @@ export class CommitmentController {
       const result = await this.commitmentService.getCommitment(commitmentId);
 
       return result;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  @Post('/')
+  @UseGuards(JwtAuthGuard)
+  async createCommitment(@Body() dto: CreateCommitmentDto, @AuthUser() user: User): Promise<any> {
+    try {
+      const { title, type } = dto;
+
+      const createdCommitment: CommitmentInfo = await this.commitmentService.createCommitment({
+        user,
+        title,
+        type,
+      });
+
+      return { commitment: createdCommitment };
     } catch (e) {
       throw e;
     }

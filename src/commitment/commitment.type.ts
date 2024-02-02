@@ -22,7 +22,6 @@ export interface CommitmentInfo {
 
 export interface CommitmentActivityInfo {
   commitmentActivityId: string;
-  isActive: boolean;
   renewalDate: Date;
   expirationDate: Date;
   completeDate?: Date;

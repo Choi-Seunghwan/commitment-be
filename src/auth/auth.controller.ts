@@ -14,6 +14,7 @@ export class AuthController {
   @HttpCode(201)
   async sighUpGuest(): Promise<{ user: UserMyInfo; token: string }> {
     const { userMyInfo, token } = await this.authService.signUpGuest();
+
     return { user: userMyInfo, token };
   }
 
@@ -21,6 +22,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async validToken(@AuthUser() user: User) {
     const userMyInfo: UserMyInfo = userMyInfoMapper(user);
+
     return { user: userMyInfo };
   }
 }

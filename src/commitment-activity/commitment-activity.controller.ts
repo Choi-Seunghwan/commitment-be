@@ -1,9 +1,11 @@
-import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommitmentParam } from 'src/commitment/dto/commitment.param';
 import { CommitmentActivityService } from './commitment-activity.service';
 import { JwtAuthGuard } from 'src/security/jwt-auth.guard';
 import { AuthUser } from 'src/security/auth-user.decorator';
 import { User } from 'src/user/user.entity';
+import { UserCommitmentDto } from './dto/commitment-activity.dto';
+import { CommitmentInfo, CommitmentType } from 'src/commitment/commitment.type';
 
 @Controller('commitment-activity')
 export class CommitmentActivityController {
@@ -11,11 +13,14 @@ export class CommitmentActivityController {
 
   @Get('/')
   @UseGuards(JwtAuthGuard)
-  async getUserCommitments(@AuthUser() user: User) {
-    const progressCommitments = await this.commitmentActivityService.getUserCommitments(user, true);
-    const completedCommitments = await this.commitmentActivityService.getUserCommitments(user, false);
+  async getUserCommitments(@Body() dto: UserCommitmentDto, @AuthUser() user: User) {
+    const { type, status } = dto;
 
-    return { progressCommitments, completedCommitments };
+    let commitments: CommitmentInfo[];
+    if (type === CommitmentType.PERSONAL) commitments = await this.commitmentActivityService.getUserPersonalCommitments({ user, status });
+    else if (type === CommitmentType.PUBLIC) commitments = await this.commitmentActivityService.getUserPublicCommitments({ user, status });
+
+    return { commitments };
   }
 
   @Get('/:commitmentId')
@@ -27,7 +32,7 @@ export class CommitmentActivityController {
     return { commitment };
   }
 
-  @Post('/renew/:commitmentId')
+  @Post('/:commitmentId/renew')
   @UseGuards(JwtAuthGuard)
   async renewCommitment(@Param() param: CommitmentParam, @AuthUser() user: User) {
     const { commitmentId } = param;
@@ -36,7 +41,7 @@ export class CommitmentActivityController {
     return { commitment: renewCommitment };
   }
 
-  @Post('/complete/:commitmentId')
+  @Post('/:commitmentId/complete')
   @UseGuards(JwtAuthGuard)
   async completeCommitment(@Param() param: CommitmentParam, @AuthUser() user: User) {
     const { commitmentId } = param;

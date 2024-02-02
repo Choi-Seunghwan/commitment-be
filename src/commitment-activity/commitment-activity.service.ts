@@ -4,9 +4,11 @@ import { Commitment } from 'src/commitment/commitment.entity';
 import { User } from 'src/user/user.entity';
 import { FindOneOptions, Repository } from 'typeorm';
 import { CommitmentActivity } from './commitment-activity.entity';
-import { CommitmentInfo } from 'src/commitment/commitment.type';
+import { CommitmentActivityStatus, CommitmentInfo, CommitmentType } from 'src/commitment/commitment.type';
 import { calcCommitmentActivityExpirationDate } from 'src/commitment/commitment.utils';
 import { CommitmentInfoBuilder } from 'src/commitment/commitment-info.builder';
+import { COMMITMENT_STATUS, COMMITMENT_TYPE } from 'src/commitment/commitment.constant';
+import { UserCommitment } from 'src/commitment/user-commitment.entity';
 
 @Injectable()
 export class CommitmentActivityService {
@@ -15,13 +17,19 @@ export class CommitmentActivityService {
     private commitmentRepo: Repository<Commitment>,
     @InjectRepository(CommitmentActivity)
     private commitmentActivityRepo: Repository<CommitmentActivity>,
+    @InjectRepository(UserCommitment)
+    private userCommitmentRepo: Repository<UserCommitment>,
   ) {}
 
-  async getUserCommitments(user: User, isActive = true): Promise<CommitmentInfo[]> {
+  async getUserPersonalCommitments({ user, status }: { user: User; status: CommitmentActivityStatus }): Promise<CommitmentInfo[]> {
     const commitmentActivities = await this.commitmentActivityRepo.find({
       where: {
         user: { id: user.id },
-        isActive,
+        status,
+        commitment: { type: COMMITMENT_TYPE.PERSONAL },
+      },
+      order: {
+        createDate: 'DESC',
       },
       relations: ['user', 'commitment'],
     });
@@ -29,6 +37,30 @@ export class CommitmentActivityService {
     const commitmentInfo: CommitmentInfo[] = commitmentActivities.map((ca) =>
       new CommitmentInfoBuilder().setUserData(user).setCommitmentActivityData(ca).setCommitmentData(ca.commitment).build(),
     );
+
+    return commitmentInfo;
+  }
+
+  async getUserPublicCommitments({ user, status }: { user: User; status: CommitmentActivityStatus }): Promise<CommitmentInfo[]> {
+    const userCommitments = await this.userCommitmentRepo.find({
+      where: {
+        user: { id: user.id },
+        commitmentActivity: { status },
+      },
+      order: {
+        joinedDate: 'DESC',
+      },
+      relations: ['user', 'commitment', 'commitmentActivity'],
+    });
+
+    const commitmentInfo: CommitmentInfo[] = userCommitments.map((uc) =>
+      new CommitmentInfoBuilder()
+        .setUserData(user)
+        .setCommitmentActivityData(uc.commitmentActivity)
+        .setCommitmentData(uc.commitment)
+        .build(),
+    );
+
     return commitmentInfo;
   }
 
@@ -75,7 +107,8 @@ export class CommitmentActivityService {
     const commitmentActivity = await this.getCommitmentActivity(commitmentId, user.id, true);
 
     if (!commitmentActivity) throw new BadRequestException('commitmentActivity not found');
-    if (!commitmentActivity?.isActive) throw new BadRequestException('commitmentActivity is not activated');
+    if (!commitmentActivity?.isProgress()) throw new BadRequestException('commitmentActivity is not progress');
+    if (commitmentActivity?.isExpired()) throw new BadRequestException('commitmentActivity is expired');
 
     const renewalDate = new Date();
     const expirationDate = calcCommitmentActivityExpirationDate(renewalDate, commitmentActivity?.commitment?.renewalPeriodDays);
@@ -148,11 +181,10 @@ export class CommitmentActivityService {
       const now = new Date();
 
       if (!commitmentActivity) throw new NotFoundException('commitmentActivity not found');
-      if (!commitmentActivity?.isActive || commitmentActivity.completeDate)
-        throw new BadRequestException('commitmentActivity is already completed');
-      if (commitmentActivity.expirationDate < now) throw new BadRequestException('commitment already expired');
+      if (!commitmentActivity?.isProgress()) throw new BadRequestException('commitmentActivity is already completed');
+      if (commitmentActivity.isExpired()) throw new BadRequestException('commitment already expired');
 
-      commitmentActivity.isActive = false;
+      commitmentActivity.status = COMMITMENT_STATUS.COMPLETE;
       commitmentActivity.completeDate = now;
 
       await this.commitmentActivityRepo.save(commitmentActivity);

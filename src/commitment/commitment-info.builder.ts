@@ -6,6 +6,10 @@ import { CommitmentActivity } from 'src/commitment-activity/commitment-activity.
 import { commitmentActivityInfoMapper, commitmentInfoMapper } from './commitment.mapper';
 import { Commitment } from './commitment.entity';
 
+/**
+ * @description 사용 예시
+ * const commitmentInfo = new CommitmentInfoBuilder().setUserData(user).setCommitmentData(commitment).build();
+ */
 export class CommitmentInfoBuilder {
   private commitmentInfo: CommitmentInfo;
   private userInfo: UserInfo;
@@ -31,6 +35,3 @@ export class CommitmentInfoBuilder {
     return this.commitmentInfo;
   }
 }
-
-// 사용 예시
-// const commitmentInfo = new CommitmentInfoBuilder().setUserData(user).setCommitmentData(commitment).build();

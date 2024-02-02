@@ -39,9 +39,16 @@ export class Commitment {
   })
   type: string;
 
-  @Column({ default: false })
-  isPublic: boolean;
-
   @OneToMany(() => UserCommitment, (userCommitment) => userCommitment.commitment)
   userCommitments: UserCommitment[];
+
+  /// functions
+
+  isPublic(): boolean {
+    return this.type === COMMITMENT_TYPE.PUBLIC;
+  }
+
+  isPersonal(): boolean {
+    return this.type === COMMITMENT_TYPE.PERSONAL;
+  }
 }
