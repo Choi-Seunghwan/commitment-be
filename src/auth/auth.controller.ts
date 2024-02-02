@@ -1,10 +1,10 @@
 import { Controller, HttpCode, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UserInfo, UserMyInfo } from 'src/user/user.type';
+import { UserMyInfo } from 'src/user/user.type';
 import { AuthUser } from 'src/security/auth-user.decorator';
 import { User } from 'src/user/user.entity';
 import { JwtAuthGuard } from 'src/security/jwt-auth.guard';
-import { userInfoMapper } from 'src/user/user.mapper';
+import { userMyInfoMapper } from 'src/user/user.mapper';
 
 @Controller('auth')
 export class AuthController {
@@ -20,7 +20,7 @@ export class AuthController {
   @Post('/token')
   @UseGuards(JwtAuthGuard)
   async validToken(@AuthUser() user: User) {
-    const userInfo: UserInfo = userInfoMapper(user);
-    return { user: userInfo };
+    const userMyInfo: UserMyInfo = userMyInfoMapper(user);
+    return { user: userMyInfo };
   }
 }
