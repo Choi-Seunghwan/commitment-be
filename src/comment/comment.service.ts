@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { CommitmentComment } from './comment.entity';
+import { CommitmentComment } from './commitment-comment.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { paginate } from 'src/utils/pagination';
 import { User } from 'src/user/user.entity';
-import { Commitment } from 'src/commitment/commitment.entity';
+import { CommitmentService } from 'src/commitment/commitment.service';
+import { CommitmentCommentInfo } from './comment.type';
+import { CommitmentCommentInfoBuilder } from './commitment-comment-info.builder';
 
 @Injectable()
 export class CommentService {
@@ -12,26 +14,32 @@ export class CommentService {
     @InjectRepository(CommitmentComment)
     private commitmentCommentRepo: Repository<CommitmentComment>,
 
-    @InjectRepository(Commitment)
-    private commitmentRepo: Repository<Commitment>,
-
-    
+    private readonly commitmentService: CommitmentService,
   ) {}
 
   async getCommitmentComments(commitmentId: string, page = 1, limit = 10) {
-    const results = await paginate(this.commitmentCommentRepo, page, limit, { where: { commitment: { id: commitmentId } } })();
+    const results = await paginate(this.commitmentCommentRepo, page, limit, {
+      where: { commitment: { id: commitmentId } },
+      relations: ['user'],
+    })();
 
-    return results;
+    const commitmentCommentInfos = results?.data?.map((cc) =>
+      new CommitmentCommentInfoBuilder().setUserData(cc.user).setCommitmentCommentData(cc).build(),
+    );
+    return { commitmentCommentInfos, count: results?.count };
   }
 
-  async createComment(user: User, commitmentId: string, content: string) {
-    
+  async createComment(user: User, commitmentId: string, content: string): Promise<CommitmentCommentInfo> {
+    const commitment = await this.commitmentService.getCommitment(commitmentId);
 
-
-    const comment: Comment = this.commitmentCommentRepo.create({
-      user,
+    const comment: CommitmentComment = this.commitmentCommentRepo.create({
+      user: { id: user.id },
       content,
-      commitment: 
+      commitment: { id: commitment.id },
     });
+
+    await this.commitmentCommentRepo.save(comment);
+
+    return new CommitmentCommentInfoBuilder().setUserData(user).setCommitmentCommentData(comment).build();
   }
 }

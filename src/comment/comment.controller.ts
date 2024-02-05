@@ -3,6 +3,8 @@ import { CommentService } from './comment.service';
 import { CommitmentParam } from 'src/commitment/dto/commitment.param';
 import { CreateCommentDto } from './dto/comment.dto';
 import { JwtAuthGuard } from 'src/security/jwt-auth.guard';
+import { AuthUser } from 'src/security/auth-user.decorator';
+import { User } from 'src/user/user.entity';
 
 @Controller('/')
 export class CommentController {
@@ -12,9 +14,9 @@ export class CommentController {
   async getCommitmentComments(@Param() param: CommitmentParam): Promise<any> {
     try {
       const { commitmentId } = param;
-      const { data, count } = await this.commentService.getCommitmentComments(commitmentId);
+      const { commitmentCommentInfos, count } = await this.commentService.getCommitmentComments(commitmentId);
 
-      return { comments: data, count };
+      return { comments: commitmentCommentInfos, count };
     } catch (e) {
       throw e;
     }
@@ -22,12 +24,12 @@ export class CommentController {
 
   @Post('/:commitmentId/comment')
   @UseGuards(JwtAuthGuard)
-  async createCommitmentComments(@Param() param: CommitmentParam, @Body() dto: CreateCommentDto) {
+  async createCommitmentComments(@Param() param: CommitmentParam, @Body() dto: CreateCommentDto, @AuthUser() user: User) {
     try {
       const { commitmentId } = param;
       const { context } = dto;
 
-      const commitmentCommentInfo = await this.commentService.createComment(commitmentId, context);
+      const commitmentCommentInfo = await this.commentService.createComment(user, commitmentId, context);
 
       return { comment: commitmentCommentInfo };
     } catch (e) {

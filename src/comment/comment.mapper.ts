@@ -1,4 +1,4 @@
-import { CommitmentComment } from './comment.entity';
+import { CommitmentComment } from './commitment-comment.entity';
 import { CommitmentCommentInfo } from './comment.type';
 
 export const commitmentCommentMapper = (commitmentComment: CommitmentComment): CommitmentCommentInfo => {
