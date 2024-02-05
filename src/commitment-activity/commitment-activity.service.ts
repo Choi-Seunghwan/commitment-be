@@ -34,11 +34,11 @@ export class CommitmentActivityService {
       relations: ['user', 'commitment'],
     });
 
-    const commitmentInfo: CommitmentInfo[] = commitmentActivities.map((ca) =>
+    const commitmentInfos: CommitmentInfo[] = commitmentActivities.map((ca) =>
       new CommitmentInfoBuilder().setUserData(user).setCommitmentActivityData(ca).setCommitmentData(ca.commitment).build(),
     );
 
-    return { commitment: commitmentInfo };
+    return commitmentInfos;
   }
 
   async getUserPublicCommitments({ user, status }: { user: User; status: CommitmentActivityStatus }): Promise<CommitmentInfo[]> {
@@ -53,7 +53,7 @@ export class CommitmentActivityService {
       relations: ['user', 'commitment', 'commitmentActivity'],
     });
 
-    const commitmentInfo: CommitmentInfo[] = userCommitments.map((uc) =>
+    const commitmentInfos: CommitmentInfo[] = userCommitments.map((uc) =>
       new CommitmentInfoBuilder()
         .setUserData(user)
         .setCommitmentActivityData(uc.commitmentActivity)
@@ -61,7 +61,7 @@ export class CommitmentActivityService {
         .build(),
     );
 
-    return commitmentInfo;
+    return commitmentInfos;
   }
 
   async getUserCommitment(user: User, commitmentId: string): Promise<CommitmentInfo> {

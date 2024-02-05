@@ -1,4 +1,12 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
-@Controller('comment')
-export class CommentController {}
+@Controller('/')
+export class CommentController {
+  @Get('/:commitmentId/comment')
+  async getCommitmentComments(): Promise<any> {
+    try {
+    } catch (e) {
+      throw e;
+    }
+  }
+}

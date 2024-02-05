@@ -16,11 +16,13 @@ export class CommitmentActivityController {
   async getUserCommitments(@Body() dto: UserCommitmentDto, @AuthUser() user: User) {
     const { type, status } = dto;
 
-    let commitments: CommitmentInfo[];
-    if (type === CommitmentType.PERSONAL) commitments = await this.commitmentActivityService.getUserPersonalCommitments({ user, status });
-    else if (type === CommitmentType.PUBLIC) commitments = await this.commitmentActivityService.getUserPublicCommitments({ user, status });
+    let commitmentInfos: CommitmentInfo[];
+    if (type === CommitmentType.PERSONAL)
+      commitmentInfos = await this.commitmentActivityService.getUserPersonalCommitments({ user, status });
+    else if (type === CommitmentType.PUBLIC)
+      commitmentInfos = await this.commitmentActivityService.getUserPublicCommitments({ user, status });
 
-    return { commitments };
+    return { commitments: commitmentInfos };
   }
 
   @Get('/:commitmentId')
