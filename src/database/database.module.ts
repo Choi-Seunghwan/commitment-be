@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CommitmentComment } from 'src/comment/commitment-comment.entity';
 import { CommitmentActivity } from 'src/commitment-activity/commitment-activity.entity';
 import { CommitmentHistory } from 'src/commitment/commitment-history.entity';
 import { Commitment } from 'src/commitment/commitment.entity';
@@ -24,7 +25,7 @@ import { User } from 'src/user/user.entity';
         host: configService.get<string>(ENV_DATABASE_HOST),
         database: configService.get<string>(ENV_DATABASE_NAME),
         port: Number(configService.get<string>(ENV_DATABASE_PORT)),
-        entities: [User, Commitment, CommitmentActivity, CommitmentHistory, UserCommitment],
+        entities: [User, Commitment, CommitmentActivity, CommitmentHistory, UserCommitment, CommitmentComment],
         username: configService.get<string>(ENV_DATABASE_USERNAME),
         password: configService.get<string>(ENV_DATABASE_PASSWORD),
         synchronize: true,

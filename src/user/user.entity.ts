@@ -1,3 +1,4 @@
+import { CommitmentComment } from 'src/comment/commitment-comment.entity';
 import { CommitmentActivity } from 'src/commitment-activity/commitment-activity.entity';
 import { Commitment } from 'src/commitment/commitment.entity';
 import { UserCommitment } from 'src/commitment/user-commitment.entity';
@@ -34,4 +35,7 @@ export class User {
 
   @OneToMany(() => UserCommitment, (userCommitment) => userCommitment.user)
   userCommitments: UserCommitment[];
+
+  @OneToMany(() => CommitmentComment, (commitmentComment) => commitmentComment.user)
+  commitmentComments: CommitmentComment[];
 }

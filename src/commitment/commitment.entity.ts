@@ -4,7 +4,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, Pri
 import { UserCommitment } from './user-commitment.entity';
 import { CommitmentType, CommitmentRenewalPeriodDays } from './commitment.type';
 import { COMMITMENT_RENEWAL_PERIOD_DAYS, COMMITMENT_TYPE } from './commitment.constant';
-import { CommitmentComment } from 'src/comment/comment.entity';
+import { CommitmentComment } from 'src/comment/commitment-comment.entity';
 
 @Entity()
 export class Commitment {
