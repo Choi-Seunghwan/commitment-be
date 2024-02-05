@@ -4,7 +4,7 @@ import { Commitment } from 'src/commitment/commitment.entity';
 import { User } from 'src/user/user.entity';
 import { FindOneOptions, Repository } from 'typeorm';
 import { CommitmentActivity } from './commitment-activity.entity';
-import { CommitmentActivityStatus, CommitmentInfo, CommitmentType } from 'src/commitment/commitment.type';
+import { CommitmentActivityStatus, CommitmentInfo } from 'src/commitment/commitment.type';
 import { calcCommitmentActivityExpirationDate } from 'src/commitment/commitment.utils';
 import { CommitmentInfoBuilder } from 'src/commitment/commitment-info.builder';
 import { COMMITMENT_STATUS, COMMITMENT_TYPE } from 'src/commitment/commitment.constant';
@@ -21,7 +21,7 @@ export class CommitmentActivityService {
     private userCommitmentRepo: Repository<UserCommitment>,
   ) {}
 
-  async getUserPersonalCommitments({ user, status }: { user: User; status: CommitmentActivityStatus }): Promise<CommitmentInfo[]> {
+  async getUserPersonalCommitments({ user, status }: { user: User; status: CommitmentActivityStatus }) {
     const commitmentActivities = await this.commitmentActivityRepo.find({
       where: {
         user: { id: user.id },
@@ -38,7 +38,7 @@ export class CommitmentActivityService {
       new CommitmentInfoBuilder().setUserData(user).setCommitmentActivityData(ca).setCommitmentData(ca.commitment).build(),
     );
 
-    return commitmentInfo;
+    return { commitment: commitmentInfo };
   }
 
   async getUserPublicCommitments({ user, status }: { user: User; status: CommitmentActivityStatus }): Promise<CommitmentInfo[]> {

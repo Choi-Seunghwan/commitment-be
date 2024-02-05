@@ -2,8 +2,9 @@ import { CommitmentActivity } from 'src/commitment-activity/commitment-activity.
 import { User } from 'src/user/user.entity';
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { UserCommitment } from './user-commitment.entity';
-import { CommitmentType } from './commitment.type';
-import { COMMITMENT_TYPE } from './commitment.constant';
+import { CommitmentType, CommitmentRenewalPeriodDays } from './commitment.type';
+import { COMMITMENT_RENEWAL_PERIOD_DAYS, COMMITMENT_TYPE } from './commitment.constant';
+import { CommitmentComment } from 'src/comment/comment.entity';
 
 @Entity()
 export class Commitment {
@@ -20,8 +21,8 @@ export class Commitment {
   @JoinColumn({ name: 'creatorId' })
   creator: User;
 
-  @Column({ nullable: false, enum: [7] })
-  renewalPeriodDays: number; // 갱신 주기 (일 단위)
+  @Column({ nullable: false, enum: Object.values(COMMITMENT_RENEWAL_PERIOD_DAYS) })
+  renewalPeriodDays: CommitmentRenewalPeriodDays; // 갱신 주기 (일 단위)
 
   @UpdateDateColumn()
   updateDate: Date;
@@ -41,6 +42,9 @@ export class Commitment {
 
   @OneToMany(() => UserCommitment, (userCommitment) => userCommitment.commitment)
   userCommitments: UserCommitment[];
+
+  @OneToMany(() => CommitmentComment, (commitmentComment) => commitmentComment.commitment)
+  comments: CommitmentComment[];
 
   /// functions
 

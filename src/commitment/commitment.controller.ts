@@ -15,10 +15,11 @@ export class CommitmentController {
 
   @Get('/')
   @UseGuards(OptionalJwtAuthGuard)
-  async getCommitments(@AuthUser() user: User): Promise<any> {
+  async getPublicCommitments(@AuthUser() user: User): Promise<any> {
     try {
-      const result = await this.commitmentService.getCommitmentList(user);
-      return result;
+      const commitments = await this.commitmentService.getPublicCommitments(user);
+
+      return { commitments };
     } catch (e) {
       throw e;
     }
@@ -40,12 +41,13 @@ export class CommitmentController {
   @UseGuards(JwtAuthGuard)
   async createCommitment(@Body() dto: CreateCommitmentDto, @AuthUser() user: User): Promise<any> {
     try {
-      const { title, type } = dto;
+      const { title, type, renewalPeriodDays } = dto;
 
       const createdCommitment: CommitmentInfo = await this.commitmentService.createCommitment({
         user,
         title,
         type,
+        renewalPeriodDays,
       });
 
       return { commitment: createdCommitment };

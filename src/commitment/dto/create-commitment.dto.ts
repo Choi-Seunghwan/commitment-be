@@ -1,5 +1,5 @@
 import { IsEnum, IsString } from 'class-validator';
-import { CommitmentType } from '../commitment.type';
+import { CommitmentRenewalPeriodDays, CommitmentType } from '../commitment.type';
 
 export class CreateCommitmentDto {
   @IsString()
@@ -7,4 +7,7 @@ export class CreateCommitmentDto {
 
   @IsEnum(CommitmentType)
   type: string;
+
+  @IsEnum(CommitmentRenewalPeriodDays)
+  renewalPeriodDays: number;
 }

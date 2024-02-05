@@ -1,5 +1,4 @@
 import { UserInfo } from 'src/user/user.type';
-import { COMMITMENT_STATUS, COMMITMENT_TYPE } from './commitment.constant';
 
 export enum CommitmentActivityStatus {
   PROGRESS = 'PROGRESS',
@@ -27,4 +26,14 @@ export interface CommitmentActivityInfo {
   completeDate?: Date;
   processDays: number;
   status: string;
+}
+
+export enum CommitmentRenewalPeriodDays {
+  One = 1,
+  Two = 2,
+  Three = 3,
+  Four = 4,
+  Five = 5,
+  Six = 6,
+  Seven = 7,
 }

@@ -5,8 +5,9 @@ import { Repository } from 'typeorm';
 import { User } from 'src/user/user.entity';
 import { CommitmentActivityService } from 'src/commitment-activity/commitment-activity.service';
 import { CommitmentInfo } from './commitment.type';
-import { COMMITMENT_TYPE } from './commitment.constant';
+import { COMMITMENT_RENEWAL_PERIOD_DAYS, COMMITMENT_TYPE } from './commitment.constant';
 import { UserCommitment } from './user-commitment.entity';
+import { CommitmentInfoBuilder } from './commitment-info.builder';
 // import { CommitmentActivity } from 'src/commitment-activity/commitment-activity.entity';
 
 @Injectable()
@@ -22,27 +23,39 @@ export class CommitmentService {
     private commitmentActivityService: CommitmentActivityService,
   ) {}
 
-  async getCommitmentList(user: User) {
+  async getPublicCommitments(user: User): Promise<CommitmentInfo[]> {
     try {
-      const commitments = await this.commitmentRepo.find({});
+      const commitments = await this.commitmentRepo.find({ where: { type: COMMITMENT_TYPE.PUBLIC } });
 
-      return commitments;
+      const commitmentInfos: CommitmentInfo[] = commitments.map((c) => new CommitmentInfoBuilder().setCommitmentData(c).build());
+
+      return commitmentInfos;
     } catch (e) {
       throw e;
     }
   }
 
-  async createCommitment({ user, title, type }: { user: User; title: string; type: string }): Promise<CommitmentInfo> {
+  async createCommitment({
+    user,
+    title,
+    type,
+    renewalPeriodDays = COMMITMENT_RENEWAL_PERIOD_DAYS.Seven,
+  }: {
+    user: User;
+    title: string;
+    type: string;
+    renewalPeriodDays: number;
+  }): Promise<CommitmentInfo> {
     try {
-      if (!user?.id) throw new BadRequestException('user not founded');
       const commitment: Commitment = this.commitmentRepo.create({
         title,
-        renewalPeriodDays: 7,
+        renewalPeriodDays,
         creator: user,
         type,
       });
 
       await this.commitmentRepo.save(commitment);
+
       let commitmentInfo: CommitmentInfo;
 
       if (type === COMMITMENT_TYPE.PUBLIC) commitmentInfo = await this.joinCommitment(commitment, user);
