@@ -9,6 +9,6 @@ export class CommitmentHistory {
   @ManyToOne(() => CommitmentActivity)
   commitmentActivity: CommitmentActivity;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createDate: Date;
 }

@@ -10,19 +10,19 @@ export class CommitmentActivity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createDate: Date;
 
   /** 갱신 날짜 */
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamptz' })
   renewalDate: Date;
 
   /** 만료 날짜 */
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamptz' })
   expirationDate: Date;
 
   /** 완료 일자 */
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamptz', nullable: true })
   completeDate: Date;
 
   @Column({

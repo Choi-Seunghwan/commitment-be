@@ -24,10 +24,10 @@ export class Commitment {
   @Column({ nullable: false, enum: Object.values(COMMITMENT_RENEWAL_PERIOD_DAYS) })
   renewalPeriodDays: CommitmentRenewalPeriodDays; // 갱신 주기 (일 단위)
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updateDate: Date;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createDate: Date;
 
   @OneToMany(() => CommitmentActivity, (commitmentActivity) => commitmentActivity.commitment)

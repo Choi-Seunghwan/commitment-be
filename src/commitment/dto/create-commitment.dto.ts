@@ -5,6 +5,9 @@ export class CreateCommitmentDto {
   @IsString()
   title: string;
 
+  @IsString()
+  description: string;
+
   @IsEnum(CommitmentType)
   type: string;
 

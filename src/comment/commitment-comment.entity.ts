@@ -10,7 +10,7 @@ export class CommitmentComment {
   @Column()
   content: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createDate: Date;
 
   @ManyToOne(() => User, (user) => user.commitmentComments)

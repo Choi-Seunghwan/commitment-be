@@ -41,11 +41,12 @@ export class CommitmentController {
   @UseGuards(JwtAuthGuard)
   async createCommitment(@Body() dto: CreateCommitmentDto, @AuthUser() user: User): Promise<any> {
     try {
-      const { title, type, renewalPeriodDays } = dto;
+      const { title, description, type, renewalPeriodDays } = dto;
 
       const createdCommitment: CommitmentInfo = await this.commitmentService.createCommitment({
         user,
         title,
+        description,
         type,
         renewalPeriodDays,
       });

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { CommitmentParam } from 'src/commitment/dto/commitment.param';
 import { CommitmentActivityService } from './commitment-activity.service';
 import { JwtAuthGuard } from 'src/security/jwt-auth.guard';
@@ -13,7 +13,7 @@ export class CommitmentActivityController {
 
   @Get('/')
   @UseGuards(JwtAuthGuard)
-  async getUserCommitments(@Body() dto: UserCommitmentDto, @AuthUser() user: User) {
+  async getUserCommitments(@Query() dto: UserCommitmentDto, @AuthUser() user: User) {
     const { type, status } = dto;
 
     let commitmentInfos: CommitmentInfo[];

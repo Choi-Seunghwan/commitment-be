@@ -21,10 +21,10 @@ export class User {
   @Column({ default: false })
   isGuest: boolean;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updateDate: Date;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createDate: Date;
 
   @OneToMany(() => Commitment, (commitment) => commitment.creator)

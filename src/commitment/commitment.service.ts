@@ -38,17 +38,20 @@ export class CommitmentService {
   async createCommitment({
     user,
     title,
+    description,
     type,
     renewalPeriodDays = COMMITMENT_RENEWAL_PERIOD_DAYS.Seven,
   }: {
     user: User;
     title: string;
+    description: string;
     type: string;
     renewalPeriodDays: number;
   }): Promise<CommitmentInfo> {
     try {
       const commitment: Commitment = this.commitmentRepo.create({
         title,
+        description,
         renewalPeriodDays,
         creator: user,
         type,

@@ -20,6 +20,6 @@ export class UserCommitment {
   @JoinColumn({ name: 'commitmentActivityId' })
   commitmentActivity: CommitmentActivity;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   joinedDate: Date;
 }

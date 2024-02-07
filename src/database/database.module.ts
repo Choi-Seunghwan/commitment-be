@@ -29,6 +29,7 @@ import { User } from 'src/user/user.entity';
         username: configService.get<string>(ENV_DATABASE_USERNAME),
         password: configService.get<string>(ENV_DATABASE_PASSWORD),
         synchronize: true,
+        timezone: 'Z',
       }),
     }),
   ],
