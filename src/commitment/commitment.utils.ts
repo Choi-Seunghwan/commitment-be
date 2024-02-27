@@ -6,7 +6,7 @@ export const calcCommitmentProcessDays = (startDate: Date): number => {
 
   const diff = now.getTime() - startDate.getTime();
 
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
 
   return days;
 };
