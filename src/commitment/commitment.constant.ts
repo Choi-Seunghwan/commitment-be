@@ -17,3 +17,8 @@ export const COMMITMENT_RENEWAL_PERIOD_DAYS = {
   Six: 6,
   Seven: 7,
 };
+
+export const COMMITMENT_PARAM_TYPE = {
+  POPULAR: 'POPULAR',
+  LATEST: 'LATEST',
+};

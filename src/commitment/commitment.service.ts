@@ -8,6 +8,7 @@ import { CommitmentInfo } from './commitment.type';
 import { COMMITMENT_RENEWAL_PERIOD_DAYS, COMMITMENT_TYPE } from './commitment.constant';
 import { UserCommitment } from './user-commitment.entity';
 import { CommitmentInfoBuilder } from './commitment-info.builder';
+import { paginate } from 'src/utils/pagination';
 // import { CommitmentActivity } from 'src/commitment-activity/commitment-activity.entity';
 
 @Injectable()
@@ -23,13 +24,51 @@ export class CommitmentService {
     private commitmentActivityService: CommitmentActivityService,
   ) {}
 
-  async getPublicCommitments(user: User): Promise<CommitmentInfo[]> {
+  async getPublicCommitments({ user, page = 1, limit = 10 }: { user: User; page: number; limit: number }): Promise<CommitmentInfo[]> {
     try {
       const commitments = await this.commitmentRepo.find({ where: { type: COMMITMENT_TYPE.PUBLIC } });
 
       const commitmentInfos: CommitmentInfo[] = commitments.map((c) => new CommitmentInfoBuilder().setCommitmentData(c).build());
 
       return commitmentInfos;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getLatestPublicCommitments({ user, page = 1, limit = 10 }: { user: User; page: number; limit: number }) {
+    try {
+      const paginatedCommitments = await paginate(this.commitmentRepo, page, limit, {
+        where: { type: COMMITMENT_TYPE.PUBLIC },
+        relations: [],
+        order: { createDate: 'DESC' },
+      })();
+
+      const commitmentInfos: CommitmentInfo[] = paginatedCommitments?.data?.map((c) =>
+        new CommitmentInfoBuilder().setCommitmentData(c).build(),
+      );
+
+      // paginatedCommitments.data = commitmentInfos;
+      return { commitmentInfos, count: paginatedCommitments.count };
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  /** todo Popular */
+  async getPopularPublicCommitments({ user, page = 1, limit = 10 }: { user: User; page: number; limit: number }) {
+    try {
+      const paginatedCommitments = await paginate(this.commitmentRepo, page, limit, {
+        where: { type: COMMITMENT_TYPE.PUBLIC },
+        relations: [],
+      })();
+
+      const commitmentInfos: CommitmentInfo[] = paginatedCommitments?.data?.map((c) =>
+        new CommitmentInfoBuilder().setCommitmentData(c).build(),
+      );
+
+      // paginatedCommitments.data = commitmentInfos;
+      return { commitmentInfos, count: paginatedCommitments.count };
     } catch (e) {
       throw e;
     }

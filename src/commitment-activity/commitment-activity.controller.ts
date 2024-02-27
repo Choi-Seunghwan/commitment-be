@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
-import { CommitmentParam } from 'src/commitment/dto/commitment.param';
+import { CommitmentIdParam, CommitmentParam } from 'src/commitment/dto/commitment.param';
 import { CommitmentActivityService } from './commitment-activity.service';
 import { JwtAuthGuard } from 'src/security/jwt-auth.guard';
 import { AuthUser } from 'src/security/auth-user.decorator';
@@ -27,7 +27,7 @@ export class CommitmentActivityController {
 
   @Get('/:commitmentId')
   @UseGuards(JwtAuthGuard)
-  async getUserCommitment(@Param() param: CommitmentParam, @AuthUser() user: User) {
+  async getUserCommitment(@Param() param: CommitmentIdParam, @AuthUser() user: User) {
     const { commitmentId } = param;
     const commitment = await this.commitmentActivityService.getUserCommitment(user, commitmentId);
 
@@ -36,7 +36,7 @@ export class CommitmentActivityController {
 
   @Post('/:commitmentId/renew')
   @UseGuards(JwtAuthGuard)
-  async renewCommitment(@Param() param: CommitmentParam, @AuthUser() user: User) {
+  async renewCommitment(@Param() param: CommitmentIdParam, @AuthUser() user: User) {
     const { commitmentId } = param;
     const renewCommitment = await this.commitmentActivityService.renewCommitment(commitmentId, user);
 
@@ -45,7 +45,7 @@ export class CommitmentActivityController {
 
   @Post('/:commitmentId/complete')
   @UseGuards(JwtAuthGuard)
-  async completeCommitment(@Param() param: CommitmentParam, @AuthUser() user: User) {
+  async completeCommitment(@Param() param: CommitmentIdParam, @AuthUser() user: User) {
     const { commitmentId } = param;
     const completedCommitment = await this.commitmentActivityService.completeCommitment(commitmentId, user);
 

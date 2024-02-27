@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Commitment } from 'src/commitment/commitment.entity';
 import { User } from 'src/user/user.entity';
-import { FindOneOptions, Repository } from 'typeorm';
+import { FindOneOptions, MoreThan, Repository } from 'typeorm';
 import { CommitmentActivity } from './commitment-activity.entity';
 import { CommitmentActivityStatus, CommitmentInfo } from 'src/commitment/commitment.type';
 import { calcCommitmentActivityExpirationDate } from 'src/commitment/commitment.utils';
@@ -22,11 +22,14 @@ export class CommitmentActivityService {
   ) {}
 
   async getUserPersonalCommitments({ user, status }: { user: User; status: CommitmentActivityStatus }) {
+    const now = new Date();
+
     const commitmentActivities = await this.commitmentActivityRepo.find({
       where: {
         user: { id: user.id },
         status,
         commitment: { type: COMMITMENT_TYPE.PERSONAL },
+        expirationDate: MoreThan(now),
       },
       order: {
         createDate: 'DESC',

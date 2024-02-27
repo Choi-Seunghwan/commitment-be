@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CommentService } from './comment.service';
-import { CommitmentParam } from 'src/commitment/dto/commitment.param';
+import { CommitmentIdParam, CommitmentParam } from 'src/commitment/dto/commitment.param';
 import { CreateCommentDto } from './dto/comment.dto';
 import { JwtAuthGuard } from 'src/security/jwt-auth.guard';
 import { AuthUser } from 'src/security/auth-user.decorator';
@@ -11,7 +11,7 @@ export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @Get('/:commitmentId/comment')
-  async getCommitmentComments(@Param() param: CommitmentParam): Promise<any> {
+  async getCommitmentComments(@Param() param: CommitmentIdParam): Promise<any> {
     try {
       const { commitmentId } = param;
       const { commitmentCommentInfos, count } = await this.commentService.getCommitmentComments(commitmentId);
@@ -24,7 +24,7 @@ export class CommentController {
 
   @Post('/:commitmentId/comment')
   @UseGuards(JwtAuthGuard)
-  async createCommitmentComments(@Param() param: CommitmentParam, @Body() dto: CreateCommentDto, @AuthUser() user: User) {
+  async createCommitmentComments(@Param() param: CommitmentIdParam, @Body() dto: CreateCommentDto, @AuthUser() user: User) {
     try {
       const { commitmentId } = param;
       const { context } = dto;
