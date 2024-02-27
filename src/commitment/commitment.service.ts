@@ -101,7 +101,15 @@ export class CommitmentService {
       let commitmentInfo: CommitmentInfo;
 
       if (type === COMMITMENT_TYPE.PUBLIC) commitmentInfo = await this.joinCommitment(commitment, user);
-      else commitmentInfo = await this.commitmentActivityService.activeCommitment(commitment, user);
+      else {
+        const commitmentActivity = await this.commitmentActivityService.activeCommitment(commitment, user);
+
+        commitmentInfo = new CommitmentInfoBuilder()
+          .setUserData(user)
+          .setCommitmentActivityData(commitmentActivity)
+          .setCommitmentData(commitment)
+          .build();
+      }
 
       return commitmentInfo;
     } catch (e) {
@@ -144,10 +152,20 @@ export class CommitmentService {
 
       if (prevUserCommitment) throw new BadRequestException('already userCommitment. user already joined');
 
-      const createdUserCommitment = this.userCommitmentRepo.create({ user, commitment });
+      const commitmentActivity = await this.commitmentActivityService.activeCommitment(commitment, user);
+
+      const createdUserCommitment = this.userCommitmentRepo.create({
+        user,
+        commitment,
+        commitmentActivity,
+      });
       await this.userCommitmentRepo.save(createdUserCommitment);
 
-      const commitmentInfo = await this.commitmentActivityService.activeCommitment(commitment, user);
+      const commitmentInfo = new CommitmentInfoBuilder()
+        .setUserData(user)
+        .setCommitmentActivityData(commitmentActivity)
+        .setCommitmentData(commitment)
+        .build();
 
       return commitmentInfo;
     } catch (e) {

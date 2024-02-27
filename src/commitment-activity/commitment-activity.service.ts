@@ -48,7 +48,7 @@ export class CommitmentActivityService {
     const userCommitments = await this.userCommitmentRepo.find({
       where: {
         user: { id: user.id },
-        commitmentActivity: { status },
+        commitmentActivity: { status: status },
       },
       order: {
         joinedDate: 'DESC',
@@ -130,9 +130,9 @@ export class CommitmentActivityService {
     return commitmentInfo;
   }
 
-  async activeCommitment(commitment: Commitment, user: User): Promise<CommitmentInfo>;
-  async activeCommitment(commitmentId: string, user: User): Promise<CommitmentInfo>;
-  async activeCommitment(commitmentOrId: Commitment | string, user: User): Promise<CommitmentInfo> {
+  async activeCommitment(commitment: Commitment, user: User): Promise<CommitmentActivity>;
+  async activeCommitment(commitmentId: string, user: User): Promise<CommitmentActivity>;
+  async activeCommitment(commitmentOrId: Commitment | string, user: User): Promise<CommitmentActivity> {
     try {
       // todo: 이와 같이 argument 로 받는 것들, decorator로 validate 체크 하도록 할 수 있을 듯
       if (!commitmentOrId || !user) throw new BadRequestException('commitmentOrId or user BadRequest');
@@ -160,13 +160,13 @@ export class CommitmentActivityService {
       await this.commitmentActivityRepo.save(commitmentActivity);
 
       // todo: 이 로직 한번에 하도록 wrapping 해야 할 듯?
-      const commitmentInfo = new CommitmentInfoBuilder()
-        .setUserData(user)
-        .setCommitmentActivityData(commitmentActivity)
-        .setCommitmentData(commitment)
-        .build();
+      // const commitmentInfo = new CommitmentInfoBuilder()
+      //   .setUserData(user)
+      //   .setCommitmentActivityData(commitmentActivity)
+      //   .setCommitmentData(commitment)
+      //   .build();
 
-      return commitmentInfo;
+      return commitmentActivity;
     } catch (e) {
       throw e;
     }
